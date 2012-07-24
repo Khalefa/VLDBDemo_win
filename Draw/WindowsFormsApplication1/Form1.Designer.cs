@@ -111,7 +111,6 @@ namespace WindowsFormsApplication1
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(521, 301);
             this.panel3.TabIndex = 2;
-            this.panel3.Paint += new System.Windows.Forms.PaintEventHandler(this.panel3_Paint);
             // 
             // tabPage1
             // 
@@ -176,7 +175,6 @@ namespace WindowsFormsApplication1
             this.userHintsToolStripMenuItem.Name = "userHintsToolStripMenuItem";
             this.userHintsToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.userHintsToolStripMenuItem.Text = "&File";
-            this.userHintsToolStripMenuItem.Click += new System.EventHandler(this.userHintsToolStripMenuItem_Click);
             // 
             // workloadsToolStripMenuItem
             // 
@@ -236,7 +234,6 @@ namespace WindowsFormsApplication1
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.Text = "Demo";
-            this.Load += new System.EventHandler(this.Form1_Load);
             this.tabControl1.ResumeLayout(false);
             this.tabPage3.ResumeLayout(false);
             this.panel4.ResumeLayout(false);

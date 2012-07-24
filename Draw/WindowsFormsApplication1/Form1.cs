@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -141,52 +142,32 @@ namespace WindowsFormsApplication1
             }
         }
 
-        private void chart1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void userHintsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void panel3_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void statusStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-
-        }
-
         private void button1_Click(object sender, EventArgs e)
         {
-           /* dataGridView1.DataSource = null;
-            dataGridView1.DataSource= GetData.RunQuery(textBox1.Text);
-            dataGridView1.Refresh();*/
-            List<ItemState> itemStates = new List<ItemState>();
+           ArrayList data = GetData.RunQuery(textBox1.Text);
            //  .DataSource = itemStates;
-            string s="<html><body>";
-            for (int i = 0; i < 100; i++)
+            string s="<html><body><table>";
+            int i = -20;
+            StreamWriter sw = new StreamWriter("C:/VLDBDemo_win/data/output.html");
+            sw.WriteLine(s);
+            
+            foreach(ItemState row in data )
             {
-                ItemState m= new ItemState { id = i.ToString() };
-                s = s + i.ToString()+"<br/>"; 
-                //dataGridView1.DataSource = itemStates;
-             //   System.Threading.Thread.Sleep(500);
+                string row_str="<tr><td>";
+                foreach (string item in row.data)
+                {
+                 if(item!="")
+                    row_str =row_str+ item.ToString() + "<td/><td>";
+                }
+                row_str=row_str+"</tr>";
+                i--;
+                if (i == 0) break;
+                sw.WriteLine(row_str);
             }
-            webBrowser1.DocumentText = s;
+            sw.WriteLine( "</table></body></html>");
+            sw.Close();
+            webBrowser1.Url = new Uri("C:/VLDBDemo_win/data/output.html");
+            
         }
 
         private void webBrowser1_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
