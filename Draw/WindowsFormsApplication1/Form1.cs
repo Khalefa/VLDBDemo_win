@@ -149,23 +149,40 @@ namespace WindowsFormsApplication1
             string s="<html><body><table>";
             int i = -20;
             StreamWriter sw = new StreamWriter("C:/VLDBDemo_win/data/output.html");
+            StreamWriter csw = new StreamWriter("C:/VLDBDemo_win/data/curve.html");
             sw.WriteLine(s);
-            
+            Point p = new Point();
+            int lc = 0;
+                
             foreach(ItemState row in data )
             {
                 string row_str="<tr><td>";
+                int count = 0;
                 foreach (string item in row.data)
                 {
-                 if(item!="")
-                    row_str =row_str+ item.ToString() + "<td/><td>";
+                    lc++;
+                    if (item != "")
+                    {
+                        row_str = row_str + item.ToString() + "<td/><td>";
+                        if (lc < 3) continue;
+                        if (count == 0) p.X = (int)Double.Parse(item);
+                        else p.Y = (int)Double.Parse(item)-26000;                                 
+                        count++;
+                    }
+                   
+                    
                 }
+                p.Y = p.Y / 2;
+                csw.WriteLine("ctx.lineTo(" + p.X*10 + "," + p.Y + ");");
                 row_str=row_str+"</tr>";
                 i--;
                 if (i == 0) break;
                 sw.WriteLine(row_str);
+
             }
             sw.WriteLine( "</table></body></html>");
             sw.Close();
+            csw.Close();
             webBrowser1.Url = new Uri("C:/VLDBDemo_win/data/output.html");
             
         }

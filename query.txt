@@ -1,0 +1,1 @@
+select a, sum(b)  from mb group by a error=2 pinterval=1 order by a limit 100;

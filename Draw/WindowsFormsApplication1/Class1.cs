@@ -20,7 +20,7 @@ namespace WindowsFormsApplication1
         {
             try
             {
-                conn = new NpgsqlConnection("Server=192.168.1.34;Port=5432;User Id=khalefa;Database=t;");
+                conn = new NpgsqlConnection("Server=192.168.1.35;Port=5432;User Id=khalefa;Database=t;");
                 conn.Open();
             }
             catch (Exception e) { conn = null; }
@@ -62,7 +62,7 @@ namespace WindowsFormsApplication1
                 m.data = new string[d.FieldCount];
                 for (int i = 0; i < d.FieldCount; i++)
                 {
-                    m.data[i] = d.GetDataTypeName(i);
+                    m.data[i] = d.GetName(i);
                 }
                 ar.Add(m);
                 while (d.Read())
