@@ -12,6 +12,8 @@ namespace ConsoleApplication1
 {
     class Program
     {
+        static string dir = "C:/VLDBDemo_win/data/n/org/";
+        static string file = "ukc.txt";
         static void computeMM(ModelType type, int[] freq, string file, string fileo, int n = int.MaxValue)
         {
             double[] uk = utils.File.ReadData(file, n);
@@ -56,7 +58,7 @@ namespace ConsoleApplication1
             }*/
 
         //}
-      
+
         static void computeM(string file, string fileo)
         {
             double[] uk = utils.File.ReadData(file);
@@ -122,62 +124,47 @@ namespace ConsoleApplication1
             }
         }
 
+        static void Serlize(int st,ModelTree t, double []uk)
+        {
+            //Console.WriteLine(t.ToString());
+            bool append = st > 0;
+            StreamWriter sw = new StreamWriter(dir + "m.txt",append);
 
+            t.ToFile(sw);
+            sw.Close();
+            using (sw = new StreamWriter(dir + "printc.txt"))
+            {
+                for (int i = 0; i <uk.Length ; i++)
+                    sw.WriteLine(i + "\t" + t.EvalProb(i, 2)+"\t"+t.EvalProb(i, 2000)+"\t"+uk[i] );
+            }
+            t.Clean();
+            XmlSerializer x = new System.Xml.Serialization.XmlSerializer(t.GetType());
+            StreamWriter m = new StreamWriter(dir + "a.xml");
+            x.Serialize(m, t);
+
+            StreamWriter mm = new StreamWriter(dir + "b.txt");
+            t.SerializeAll();
+            mm.WriteLine(Global.id);
+            for (int i = 0; i < Global.id; i++)
+                mm.WriteLine(Global.ht[i]);
+            mm.Close();
+          
+        }
         static void build(int st, int n)
         {
             int[] freq = { 17520, 24 * 4 };
-            double[] errors = { 1000, 5000, 6000 };
-            double[] uk = utils.File.ReadData("c:/data/n/uk2.txt",st,n);
+            double[] errors = {1000, 5000, 6000 };
+            double[] uk = utils.File.ReadData(dir + file, st, n);
             TimeSeries ts = new TimeSeries(uk, freq);
             ModelTree t = new ModelTree(ts, errors);
             t.BuildTree();
-            Console.WriteLine(t.ToString());
-            t.Clean();
-            XmlSerializer x = new System.Xml.Serialization.XmlSerializer(t.GetType());
-          StreamWriter m=new StreamWriter("c:/data/n/a.xml");
-            x.Serialize(m, t);
-            StreamWriter mm = new StreamWriter("c:/data/n/b.txt");
-            t.SerializeAll();
-            mm.WriteLine(Global.id);
-            for (int i = 0; i < Global.id;i++ )
-                mm.WriteLine(Global.ht[i]);
-            mm.Close();
-            bool append= st>0;
-            try
-            {
-                StreamWriter sw = new StreamWriter("c:/data/n/uk_m.txt",append);
-
-
-                sw.WriteLine(t.ToString());
-                sw.Close();
-
-            }
-            catch (Exception e)
-            {
-                // Let the user know what went wrong.
-                Console.WriteLine("The file could not be written:");
-                Console.WriteLine(e.Message);
-            }
-            try
-            {
-                using (StreamWriter sw = new StreamWriter("c:/data/n/printc.txt"))
-                {
-                    for (int i = 0; i < 100 * 1000; i++)
-                        sw.WriteLine(i + " " + t.EvalProb(i, 2));
-
-                }
-            }
-            catch (Exception e)
-            {
-                // Let the user know what went wrong.
-                Console.WriteLine("The file could not be written:");
-                Console.WriteLine(e.Message);
-            }
+            t.Set();
+            Serlize(st, t,uk);
         }
         static void Main(string[] args)
         {
-            GenData.Generate();
-            //build(0,2500000);
+            //GenData.Generate();
+            build(0, 2500000);
             //build(2500000, 2500000);*/
         }
     }

@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using stllib;
+using System.IO;
 namespace ConsoleApplication1
 {
 
     public enum ModelType
     {
-        Explicit, Implicit, Trend,PLA
+        Explicit, Implicit, Trend, PLA
     };
     public class ModelBase
     {
@@ -111,7 +112,7 @@ namespace ConsoleApplication1
                 utils.Memory.Free(t);
             }
         }
-        public Model(TimeSeries ts, bool sort=true)
+        public Model(TimeSeries ts, bool sort = true)
         {
             this.ts = ts;
             seasonal = null;
@@ -130,8 +131,8 @@ namespace ConsoleApplication1
             }
             this.type = best;
             this.Solve();
-            if(sort)
-            this.CalcError();
+            if (sort)
+                this.CalcError();
             else
                 this.CalcErrorn();
             this.len = ts.Length;
@@ -181,16 +182,16 @@ namespace ConsoleApplication1
                     if (type == ModelType.PLA)
                     {
                         values = new double[2];
-                        double asum=0;
+                        double asum = 0;
                         double bsum = 0;
 
                         for (int i = 0; i < this.ts.Length; i++)
                         {
-                            asum+= ( (i+1) - ((ts.Length + 1) / 2)) * ts.data[i];
-                            bsum += ((i + 1) - ((2*ts.Length + 1) / 3 ) ) * ts.data[i];
+                            asum += ((i + 1) - ((ts.Length + 1) / 2)) * ts.data[i];
+                            bsum += ((i + 1) - ((2 * ts.Length + 1) / 3)) * ts.data[i];
                         }
-                        values[0] = 12  * asum/ ts.Length / (ts.Length+1) / (ts.Length-1);
-                        values[1] = 6 *bsum/ ts.Length / (1-ts.Length); 
+                        values[0] = 12 * asum / ts.Length / (ts.Length + 1) / (ts.Length - 1);
+                        values[1] = 6 * bsum / ts.Length / (1 - ts.Length);
 
                     }
                     else
@@ -213,11 +214,9 @@ namespace ConsoleApplication1
                 }
             }
         }
+
         public virtual void Clean()
         {
-            error = Error(0.9);
-            id = Global.id;
-            Global.id++;
             errors = null;
             trend = null;
             if ((seasonal != null) && (values != null)) { ts = null; }
@@ -225,9 +224,9 @@ namespace ConsoleApplication1
         }
         public double Eval(int x)
         {
-            if (type == ModelType.PLA) return values[0] * (x-start) + values[1];
+            if (type == ModelType.PLA) return values[0] * (x - start) + values[1];
             if (seasonal == null && values == null) return ts.data[x];
-           
+
             if (seasonal == null) return values[0] * x + values[1];
             double t, s;
             t = s = 0;
@@ -246,9 +245,9 @@ namespace ConsoleApplication1
             for (int i = 0; i < ts.Length; i++)
             {
                 errors[i] = Math.Abs(ts.data[i] - Eval(i));// /ts.data[i] * 100;
-            }        
+            }
         }
-        
+
         private void CalcError()
         {
             errors = new double[ts.Length];
@@ -256,7 +255,7 @@ namespace ConsoleApplication1
             {
                 errors[i] = Math.Abs(ts.data[i] - Eval(i));// /ts.data[i] * 100;
             }
-           Array.Sort(errors);
+            Array.Sort(errors);
         }
         public double AvgError()
         {
@@ -313,6 +312,13 @@ namespace ConsoleApplication1
             utils.File.WriteData("c:/data/d1", ts.freq[0], ts.data, trend, seasonal.ts.data, errors);
         }
         #endregion
+        public virtual void Set()
+        {
+            error = Error(0.9);
+            id = Global.id;
+            Global.id++;
+            if (seasonal != null) seasonal.Set();
+        }
         public string ToString(string h)
         {
             String s = h + "len:" + len + "freq: " + freq + " Values:";
@@ -353,19 +359,19 @@ namespace ConsoleApplication1
             if (ts != null) l_ts = ts.Length;
             if (seasonal == null) s = "-1";
             else s = "" + seasonal.id;
-             c = "" + "0"; c_count = 0; 
-            
+            c = "" + "0"; c_count = 0;
+
 
             string ts_ = "" + l_ts + " ";
             v = l + " ";
-            m = "" + id + " " +  Type() + " " + -1  + " " + "" + error + " " + "" + freq;
+            m = "" + id + " " + Type() + " " + -1 + " " + "" + error + " " + "" + freq;
             for (int i = 0; i < l; i++) v += "" + values[i] + " ";
             for (int i = 0; i < l_ts; i++) ts_ += "" + ts.data[i] + " ";
 
-            if (seasonal != null) { Global.ht.Add(seasonal. id, seasonal.Serialize()); }
+            if (seasonal != null) { Global.ht.Add(seasonal.id, seasonal.Serialize()); }
             return m + " " + s + " " + v + " " + ts_ + " " + c;
         }
-        
+
     }
 
     class ModelSet
@@ -385,7 +391,7 @@ namespace ConsoleApplication1
             for (int i = 0; i < kk; i++)
             {
                 if (i == kk - 1) len = ts.Length - x;
-                int s=x;
+                int s = x;
                 double[] u = new double[len];
                 for (int j = 0; j < len; j++) u[j] = ts.data[x++];
                 TimeSeries t = new TimeSeries(u, ts.freq);
@@ -557,7 +563,12 @@ namespace ConsoleApplication1
 
       }*/
         #endregion
-
+        public virtual void Set()
+        {
+            base.Set();
+            if (children != null)
+                foreach (ModelTree c in children) c.Set();
+        }
         void setModels(int len, double[] errors, int shift, int done)
         {
             double[] newerrors = null;
@@ -607,7 +618,6 @@ namespace ConsoleApplication1
             int best_f = 0;
             double best_cost = double.MaxValue;
 
-
             for (i = 0; i < ts.freq.Length; i++)
             {
                 f = ts.freq[i];
@@ -649,6 +659,7 @@ namespace ConsoleApplication1
 
                 setModels(best_f, errors, 0, done);
             }
+            //Set(); 
         }
         public ModelTree() { }
         public ModelTree(TimeSeries ts, double[] errors = null, int start = 0)
@@ -672,6 +683,31 @@ namespace ConsoleApplication1
             {
                 foreach (ModelTree m in children) m.Clean();
             }
+        }
+        public void ToFile(StreamWriter sw, int indent = 0)
+        {
+            string h = indent + " ";
+            string hh = indent + " ";
+            for (int i = 0; i < indent; i++) { h += "\t"; hh += "\t"; }
+            int k = 0;
+            if (children != null)
+            {
+                k = children.Length;
+            }
+            string s = h + "Model Error:" + Error(0.9) + "%" + range.ToString() + " " + Size() + " " + type + " " + k + "";
+            //string s_mo =  "\t" + this.ToString(hh)+ "\n";
+            //s =  s + s_mo;
+            sw.WriteLine(s);
+            if (children == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < k; i++)
+            {
+                children[i].ToFile(sw, indent + 1);
+            }
+
         }
         public string ToString(int indent = 0)
         {
@@ -698,7 +734,7 @@ namespace ConsoleApplication1
             return s;
         }
 
-        public  string Serialize()
+        public string Serialize()
         {
             string m = "";
             string s = "";
@@ -707,58 +743,58 @@ namespace ConsoleApplication1
 
             int l = 0;
             int l_ts = 0;
-            int c_count=0;
+            int c_count = 0;
 
             if (values != null) l = values.Length;
             if (ts != null) l_ts = ts.Length;
             if (seasonal == null) s = "-1";
             else s = "" + seasonal.id;
             if (children == null) { c = "" + "0"; c_count = 0; }
-            else {c = "" + children.Length+" "; c_count = children.Length; }
-            
+            else { c = "" + children.Length + " "; c_count = children.Length; }
+
             string ts_ = "" + l_ts + " ";
             v = l + " ";
-            m = "" + id + " " + Type() + " " + len+ " " +"" + error + " " + "" + freq;
+            m = "" + id + " " + Type() + " " + len + " " + "" + error + " " + "" + freq;
             for (int i = 0; i < l; i++) v += "" + values[i] + " ";
             for (int i = 0; i < l_ts; i++) ts_ += "" + ts.data[i] + " ";
             for (int i = 0; i < c_count; i++) c += "" + children[i].id + " ";
 
             if (seasonal != null) { Global.ht.Add(seasonal.id, seasonal.Serialize()); }
-            return m + " " + s + " " + v + " " + ts_+" "+c;
+            return m + " " + s + " " + v + " " + ts_ + " " + c;
         }
         public void SerializeAll()
         {
             Global.ht.Add(this.id, this.Serialize());
-            if(children != null)
-            foreach (ModelTree m in children) m.SerializeAll();
+            if (children != null)
+                foreach (ModelTree m in children) m.SerializeAll();
         }
 
-  public      double EvalProb(int x,  double err)
+        public double EvalProb(int x, double err)
         {
-            
             double e = base.error;
             double y = Eval(x);// no need to compute the value
 
             //	printf("Totalhe  %lf  error %lf\n",y,e);
-            if (e < error) return y; // found result within the error
+            if (err > error) return y; // found result within the error
             //find child
 
             //Model* m = (Model*)&(models[j]);
+            if (this.children == null) return -1;
             if (this.children.Length <= 0) return -1;
-            Model mm = this.children[0];                      
-            int llen = mm.len;            
-      
+            Model mm = this.children[0];
+            int llen = mm.len;
+
             int li = x / llen;
-            
+
             if (li >= this.children.Length)
             {
-                li = this.children.Length - 1;            
+                li = this.children.Length - 1;
                 mm = this.children[li];
                 llen = mm.len;
             }
-            
+
             //	printf("l %d li %d\n",l,li);
-            return children[li].EvalProb( x % llen,  err);
+            return children[li].EvalProb(x % llen, err);
         }
 
     }

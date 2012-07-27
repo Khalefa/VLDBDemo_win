@@ -14,9 +14,9 @@ namespace WindowsFormsApplication1
 {
     public partial class Form1 : Form
     {
-       static public int[] uks;
-       static public float[] m1;
-       static public float[] m2;
+        static public int[] uks;
+        static public float[] m1;
+        static public float[] m2;
         public Form1()
         {
             InitializeComponent();
@@ -29,7 +29,7 @@ namespace WindowsFormsApplication1
 
         float gety(float y)
         {
-            float r=((y-miny)/(maxy-miny))*300*0.9f;
+            float r = ((y - miny) / (maxy - miny)) * 300 * 0.9f;
             return 300 - r;
         }
         float gete(float y)
@@ -42,39 +42,39 @@ namespace WindowsFormsApplication1
         float maxy;
         float mine;
         float maxe;
-       
+
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-          
+
             System.Drawing.Graphics graphicsObj;
-           System.Drawing.Graphics graphicsObj2;
+            System.Drawing.Graphics graphicsObj2;
             readdata();
             graphicsObj = panel3.CreateGraphics();//tabPage3.CreateGraphics();
             graphicsObj2 = panel4.CreateGraphics();//tabPage3.CreateGraphics();
             miny = 100000;
             maxy = 0;
-            mine=10000;
+            mine = 10000;
             maxe = 0;
             for (int i = 0; i < 500; i++)
             {
-               if (uks[i] > maxy) maxy = uks[i];
-               if (uks[i]  < miny) miny = uks[i];
-              float err = m1[i] - uks[i];
-               if (err > maxe) maxe = err;
-               if (err < mine) mine = err;
-               err = m2[i] - uks[i];
-               if (err > maxe) maxe = err;
-               if (err < mine) mine = err;
-               
+                if (uks[i] > maxy) maxy = uks[i];
+                if (uks[i] < miny) miny = uks[i];
+                float err = m1[i] - uks[i];
+                if (err > maxe) maxe = err;
+                if (err < mine) mine = err;
+                err = m2[i] - uks[i];
+                if (err > maxe) maxe = err;
+                if (err < mine) mine = err;
+
             }
 
             Pen p = new Pen(System.Drawing.Color.Black, 2);
 
-           Pen p1 = new Pen(System.Drawing.Color.Black, 1);
-           Pen p2 = new Pen(System.Drawing.Color.Red, 0.5f);
-           Pen p3 = new Pen(System.Drawing.Color.Blue,0.5f);
-           p2.DashStyle = DashStyle.Dot;
-           p3.DashStyle = DashStyle.Dash;
+            Pen p1 = new Pen(System.Drawing.Color.Black, 1);
+            Pen p2 = new Pen(System.Drawing.Color.Red, 0.5f);
+            Pen p3 = new Pen(System.Drawing.Color.Blue, 0.5f);
+            p2.DashStyle = DashStyle.Dot;
+            p3.DashStyle = DashStyle.Dash;
             for (int i = 0; i < 500; i++)
             {
                 graphicsObj.DrawLine(p1, getx(i), gety(uks[i]), getx(i + 1), gety(uks[i + 1]));
@@ -84,20 +84,20 @@ namespace WindowsFormsApplication1
 
             for (int i = 0; i < 500; i++)
             {
-                graphicsObj2.DrawLine(p2, getx(i), gete(m1[i] - uks[i]), getx(i + 1), gete(m1[i+1] - uks[i + 1]));
-                graphicsObj2.DrawLine(p3, getx(i), gete(m2[i]-uks[i]), getx(i + 1), gete(m2[i+1]-uks[i+1]));
+                graphicsObj2.DrawLine(p2, getx(i), gete(m1[i] - uks[i]), getx(i + 1), gete(m1[i + 1] - uks[i + 1]));
+                graphicsObj2.DrawLine(p3, getx(i), gete(m2[i] - uks[i]), getx(i + 1), gete(m2[i + 1] - uks[i + 1]));
             }
             //graphicsObj.DrawLine(p, getx(0) - 2, gety(miny) - 2, getx(500) - 2, gety(miny) - 2);
-              String drawString = "Models" ;
-              Font drawFont = new Font("Arial", 16);
-              SolidBrush drawBrush = new SolidBrush(Color.Black);
-              PointF drawPoint = new PointF(0F, 10.0F);
-              e.Graphics.DrawString(drawString, drawFont, drawBrush, drawPoint);
-               drawString = "Errors";
-              drawFont = new Font("Arial", 16);
-              drawBrush = new SolidBrush(Color.Black);
-              drawPoint = new PointF(0F, 300+10.0F);
-              e.Graphics.DrawString(drawString, drawFont, drawBrush, drawPoint);
+            String drawString = "Models";
+            Font drawFont = new Font("Arial", 16);
+            SolidBrush drawBrush = new SolidBrush(Color.Black);
+            PointF drawPoint = new PointF(0F, 10.0F);
+            e.Graphics.DrawString(drawString, drawFont, drawBrush, drawPoint);
+            drawString = "Errors";
+            drawFont = new Font("Arial", 16);
+            drawBrush = new SolidBrush(Color.Black);
+            drawPoint = new PointF(0F, 300 + 10.0F);
+            e.Graphics.DrawString(drawString, drawFont, drawBrush, drawPoint);
         }
         void readdata()
         {
@@ -124,7 +124,7 @@ namespace WindowsFormsApplication1
                         m1[i++] = float.Parse(line);
                     }
                 }
-                 i = 0;
+                i = 0;
                 using (StreamReader sr = new StreamReader("c:/data/m2"))
                 {
                     String line;
@@ -144,21 +144,26 @@ namespace WindowsFormsApplication1
 
         private void button1_Click(object sender, EventArgs e)
         {
-           ArrayList data = GetData.RunQuery(textBox1.Text);
-           //  .DataSource = itemStates;
-            string s="<html><body><table>";
+            ArrayList data = GetData.RunQuery(textBox1.Text);
+            string s = "<html><body><table>";
             int i = -20;
             StreamWriter sw = new StreamWriter("C:/VLDBDemo_win/data/output.html");
-            StreamWriter csw = new StreamWriter("C:/VLDBDemo_win/data/curve.html");
             sw.WriteLine(s);
-            Point p = new Point();
+
             int lc = 0;
-                
-            foreach(ItemState row in data )
+            ArrayList points = new ArrayList();
+            foreach (ItemState row in data)
             {
-                string row_str="<tr><td>";
+                string row_str = "<tr><td>";
+                Point p = new Point();
                 int count = 0;
-                foreach (string item in row.data)
+                int n = row.data.Length;
+                string[] rd;
+                rd = row.data;
+                if ((n == 1) && (row.data[0].Contains('\t')))
+                    rd = row.data[0].Split('\t');
+
+                foreach (string item in rd)
                 {
                     lc++;
                     if (item != "")
@@ -166,24 +171,36 @@ namespace WindowsFormsApplication1
                         row_str = row_str + item.ToString() + "<td/><td>";
                         if (lc < 3) continue;
                         if (count == 0) p.X = (int)Double.Parse(item);
-                        else p.Y = (int)Double.Parse(item)-26000;                                 
+                        else p.Y = (int)Double.Parse(item);
                         count++;
                     }
-                   
-                    
                 }
-                p.Y = p.Y / 2;
-                csw.WriteLine("ctx.lineTo(" + p.X*10 + "," + p.Y + ");");
-                row_str=row_str+"</tr>";
+                points.Add(p);
+
+                row_str = row_str + "</tr>";
                 i--;
                 if (i == 0) break;
                 sw.WriteLine(row_str);
 
             }
-            sw.WriteLine( "</table></body></html>");
+            sw.WriteLine("</table></body></html>");
             sw.Close();
+            StreamWriter csw = new StreamWriter("C:/VLDBDemo_win/data/curve.html");
+            lc = 0;
+            ArrayList pp = new ArrayList();
+            foreach (Point p in GetData.Scale(points, 1000, 1000))
+            {
+                pp.Add(p.Y);
+                lc++;
+                if (lc == 1) continue;
+                if (lc == 2) csw.WriteLine("ctx.moveTo(" + p.X + "," + p.Y + ");");
+                else
+                csw.WriteLine("ctx.lineTo(" + p.X + "," + p.Y + ");");
+            }
             csw.Close();
             webBrowser1.Url = new Uri("C:/VLDBDemo_win/data/output.html");
+            chart1.DataSource = pp;
+            
             
         }
 
@@ -192,6 +209,16 @@ namespace WindowsFormsApplication1
 
         }
 
-        
+        private void chart1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void addQueryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+
     }
 }

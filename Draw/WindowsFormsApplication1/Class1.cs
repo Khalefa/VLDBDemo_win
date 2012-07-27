@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Npgsql;
 using System.IO;
+using System.Drawing;
 namespace WindowsFormsApplication1
 {
     public class ItemState
@@ -44,6 +45,7 @@ namespace WindowsFormsApplication1
         }
         static public ArrayList RunQuery(string query)
         {
+            return ReadDataFile("C:/VLDBDemo_win/data/m.txt");
             Npgsql.NpgsqlCommand c = new NpgsqlCommand();
             if (conn == null) connect();
             if (conn != null)
@@ -81,7 +83,26 @@ namespace WindowsFormsApplication1
                 return ar;
                 //conn.Close();
             }
-            else return ReadDataFile("C:/VLDBDemo_win/data/uk");
+            else return ReadDataFile("C:/VLDBDemo_win/data/ukt.txt");
+        }
+
+        static public ArrayList Scale(ArrayList l, int x, int y)
+        {
+            int minY=int.MaxValue;
+            int maxY=int.MinValue;
+            foreach (Point p in l)
+            {
+                if (minY > p.Y) minY = p.Y;
+                if (maxY < p.Y) maxY = p.Y;
+            }
+            double ratio = (maxY - minY) / y;
+            ArrayList pp = new ArrayList();
+            foreach(Point p in l) {
+                int yy=y-(int) ((p.Y-minY) / ratio);
+                int xx = (int)(p.X *x/ l.Count );
+                pp.Add(new Point(xx, yy));
+            }
+            return pp;
         }
     }
 }
