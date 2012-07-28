@@ -12,8 +12,8 @@ namespace ConsoleApplication1
 {
     class Program
     {
-        static string dir = "C:/VLDBDemo_win/data/n/org/";
-        static string file = "ukc.txt";
+        static string dir = "C:/VLDBDemo_win/data/n/4m/";
+        static string file = "uk3.txt";
         static void computeMM(ModelType type, int[] freq, string file, string fileo, int n = int.MaxValue)
         {
             double[] uk = utils.File.ReadData(file, n);
