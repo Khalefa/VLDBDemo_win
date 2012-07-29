@@ -10,6 +10,8 @@ using System.Windows.Forms;
 using System.IO;
 using System.Drawing.Drawing2D;
 using Npgsql;
+using System.Windows.Forms.DataVisualization.Charting;
+
 namespace WindowsFormsApplication1
 {
     public partial class Form1 : Form
@@ -46,58 +48,59 @@ namespace WindowsFormsApplication1
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
 
-            System.Drawing.Graphics graphicsObj;
-            System.Drawing.Graphics graphicsObj2;
-            readdata();
-            graphicsObj = panel3.CreateGraphics();//tabPage3.CreateGraphics();
-            graphicsObj2 = panel4.CreateGraphics();//tabPage3.CreateGraphics();
-            miny = 100000;
-            maxy = 0;
-            mine = 10000;
-            maxe = 0;
-            for (int i = 0; i < 500; i++)
-            {
-                if (uks[i] > maxy) maxy = uks[i];
-                if (uks[i] < miny) miny = uks[i];
-                float err = m1[i] - uks[i];
-                if (err > maxe) maxe = err;
-                if (err < mine) mine = err;
-                err = m2[i] - uks[i];
-                if (err > maxe) maxe = err;
-                if (err < mine) mine = err;
+            /* System.Drawing.Graphics graphicsObj;
+             System.Drawing.Graphics graphicsObj2;
+             readdata();
+             graphicsObj = panel3.CreateGraphics();//tabPage3.CreateGraphics();
+             graphicsObj2 = panel4.CreateGraphics();//tabPage3.CreateGraphics();
+             miny = 100000;
+             maxy = 0;
+             mine = 10000;
+             maxe = 0;
+             for (int i = 0; i < 500; i++)
+             {
+                 if (uks[i] > maxy) maxy = uks[i];
+                 if (uks[i] < miny) miny = uks[i];
+                 float err = m1[i] - uks[i];
+                 if (err > maxe) maxe = err;
+                 if (err < mine) mine = err;
+                 err = m2[i] - uks[i];
+                 if (err > maxe) maxe = err;
+                 if (err < mine) mine = err;
 
-            }
+             }
 
-            Pen p = new Pen(System.Drawing.Color.Black, 2);
+             Pen p = new Pen(System.Drawing.Color.Black, 2);
 
-            Pen p1 = new Pen(System.Drawing.Color.Black, 1);
-            Pen p2 = new Pen(System.Drawing.Color.Red, 0.5f);
-            Pen p3 = new Pen(System.Drawing.Color.Blue, 0.5f);
-            p2.DashStyle = DashStyle.Dot;
-            p3.DashStyle = DashStyle.Dash;
-            for (int i = 0; i < 500; i++)
-            {
-                graphicsObj.DrawLine(p1, getx(i), gety(uks[i]), getx(i + 1), gety(uks[i + 1]));
-                graphicsObj.DrawLine(p2, getx(i), gety(m1[i]), getx(i + 1), gety(m1[i + 1]));
-                graphicsObj.DrawLine(p3, getx(i), gety(m2[i]), getx(i + 1), gety(m2[i + 1]));
-            }
+             Pen p1 = new Pen(System.Drawing.Color.Black, 1);
+             Pen p2 = new Pen(System.Drawing.Color.Red, 0.5f);
+             Pen p3 = new Pen(System.Drawing.Color.Blue, 0.5f);
+             p2.DashStyle = DashStyle.Dot;
+             p3.DashStyle = DashStyle.Dash;
+             for (int i = 0; i < 500; i++)
+             {
+                 graphicsObj.DrawLine(p1, getx(i), gety(uks[i]), getx(i + 1), gety(uks[i + 1]));
+                 graphicsObj.DrawLine(p2, getx(i), gety(m1[i]), getx(i + 1), gety(m1[i + 1]));
+                 graphicsObj.DrawLine(p3, getx(i), gety(m2[i]), getx(i + 1), gety(m2[i + 1]));
+             }
 
-            for (int i = 0; i < 500; i++)
-            {
-                graphicsObj2.DrawLine(p2, getx(i), gete(m1[i] - uks[i]), getx(i + 1), gete(m1[i + 1] - uks[i + 1]));
-                graphicsObj2.DrawLine(p3, getx(i), gete(m2[i] - uks[i]), getx(i + 1), gete(m2[i + 1] - uks[i + 1]));
-            }
-            //graphicsObj.DrawLine(p, getx(0) - 2, gety(miny) - 2, getx(500) - 2, gety(miny) - 2);
-            String drawString = "Models";
-            Font drawFont = new Font("Arial", 16);
-            SolidBrush drawBrush = new SolidBrush(Color.Black);
-            PointF drawPoint = new PointF(0F, 10.0F);
-            e.Graphics.DrawString(drawString, drawFont, drawBrush, drawPoint);
-            drawString = "Errors";
-            drawFont = new Font("Arial", 16);
-            drawBrush = new SolidBrush(Color.Black);
-            drawPoint = new PointF(0F, 300 + 10.0F);
-            e.Graphics.DrawString(drawString, drawFont, drawBrush, drawPoint);
+             for (int i = 0; i < 500; i++)
+             {
+                 graphicsObj2.DrawLine(p2, getx(i), gete(m1[i] - uks[i]), getx(i + 1), gete(m1[i + 1] - uks[i + 1]));
+                 graphicsObj2.DrawLine(p3, getx(i), gete(m2[i] - uks[i]), getx(i + 1), gete(m2[i + 1] - uks[i + 1]));
+             }
+             //graphicsObj.DrawLine(p, getx(0) - 2, gety(miny) - 2, getx(500) - 2, gety(miny) - 2);
+             String drawString = "Models";
+             Font drawFont = new Font("Arial", 16);
+             SolidBrush drawBrush = new SolidBrush(Color.Black);
+             PointF drawPoint = new PointF(0F, 10.0F);
+             e.Graphics.DrawString(drawString, drawFont, drawBrush, drawPoint);
+             drawString = "Errors";
+             drawFont = new Font("Arial", 16);
+             drawBrush = new SolidBrush(Color.Black);
+             drawPoint = new PointF(0F, 300 + 10.0F);
+             e.Graphics.DrawString(drawString, drawFont, drawBrush, drawPoint);
+         */
         }
         void readdata()
         {
@@ -141,7 +144,7 @@ namespace WindowsFormsApplication1
                 Console.WriteLine(e.Message);
             }
         }
-
+        static int x;
         private void button1_Click(object sender, EventArgs e)
         {
             ArrayList data = GetData.RunQuery(textBox1.Text);
@@ -175,7 +178,9 @@ namespace WindowsFormsApplication1
                         count++;
                     }
                 }
-                points.Add(p);
+                if (lc>3) 
+                    if(!(p.X==0  && p.Y==0))
+                    points.Add(p);
 
                 row_str = row_str + "</tr>";
                 i--;
@@ -185,22 +190,26 @@ namespace WindowsFormsApplication1
             }
             sw.WriteLine("</table></body></html>");
             sw.Close();
-            StreamWriter csw = new StreamWriter("C:/VLDBDemo_win/data/curve.html");
-            lc = 0;
-            ArrayList pp = new ArrayList();
-            foreach (Point p in GetData.Scale(points, 1000, 1000))
-            {
-                pp.Add(p.Y);
-                lc++;
-                if (lc == 1) continue;
-                if (lc == 2) csw.WriteLine("ctx.moveTo(" + p.X + "," + p.Y + ");");
-                else
-                csw.WriteLine("ctx.lineTo(" + p.X + "," + p.Y + ");");
-            }
-            csw.Close();
             webBrowser1.Url = new Uri("C:/VLDBDemo_win/data/output.html");
-            chart1.DataSource = pp;
+            System.Windows.Forms.DataVisualization.Charting.Series series = new System.Windows.Forms.DataVisualization.Charting.Series();
+            series.Name = x.ToString();
             
+            chart1.Series.Add(series); 
+            foreach (Point p in points)
+            {
+                chart1.Series[x.ToString()].Points.AddXY(p.X, p.Y);
+                //chart1.Series["Series2"].Points.AddY(random.Next(5, 75));
+            }
+
+            // Set series chart type
+            chart1.Series[x.ToString()].ChartType = SeriesChartType.Line;
+            //chart1.Series["Series2"].ChartType = SeriesChartType.Spline;
+
+            // Set point labels
+            chart1.Series[x.ToString()].IsValueShownAsLabel = false;
+            //chart1.Series["Series2"].IsValueShownAsLabel = true;
+            
+            x++;
             
         }
 
@@ -215,6 +224,11 @@ namespace WindowsFormsApplication1
         }
 
         private void addQueryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void chart1_Click_1(object sender, EventArgs e)
         {
 
         }

@@ -45,7 +45,7 @@ namespace WindowsFormsApplication1
         }
         static public ArrayList RunQuery(string query)
         {
-            return ReadDataFile("C:/VLDBDemo_win/data/m.txt");
+          //  return ReadDataFile("C:/VLDBDemo_win/data/m.txt");
             Npgsql.NpgsqlCommand c = new NpgsqlCommand();
             if (conn == null) connect();
             if (conn != null)
