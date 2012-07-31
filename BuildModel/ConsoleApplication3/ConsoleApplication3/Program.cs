@@ -153,7 +153,7 @@ namespace ConsoleApplication1
         static void build(int st, int n)
         {
             int[] freq = { 17520, 24 * 4 };
-            double[] errors = {1000, 5000, 6000 };
+            double[] errors = {100, 500, 1000, 1500, 5000 };
             double[] uk = utils.File.ReadData(dir + file, st, n);
             TimeSeries ts = new TimeSeries(uk, freq);
             ModelTree t = new ModelTree(ts, errors);
