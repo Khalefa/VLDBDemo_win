@@ -694,7 +694,7 @@ namespace ConsoleApplication1
             {
                 k = children.Length;
             }
-            string s = h + "Model Error:" + Error(0.9) + "%" + range.ToString() + " " + Size() + " " + type + " " + k + "";
+            string s = h + "Model Error:" + Error(0.9)  + range.ToString() + " " + Size() + " " + type + " " + k + "";
             //string s_mo =  "\t" + this.ToString(hh)+ "\n";
             //s =  s + s_mo;
             sw.WriteLine(s);

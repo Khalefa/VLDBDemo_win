@@ -11,7 +11,7 @@ namespace ModelVal
         static void Main(string[] args)
         {
             Model.error_level = 2;
-            Model.LoadModules("C:/VLDBDemo_win/data/n/4M/b.txt");
+            Model.LoadModules("C:/VLDBDemo_win/data/n/org/b.txt");
             
             
             ArrayList s= Model.FindSimilairty();

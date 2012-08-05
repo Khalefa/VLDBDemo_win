@@ -21,7 +21,7 @@ namespace WindowsFormsApplication1
         {
             try
             {
-                conn = new NpgsqlConnection("Server=192.168.1.35;Port=5432;User Id=khalefa;Database=t;");
+                conn = new NpgsqlConnection("Server="+Global.ip+";Port=5432;User Id=khalefa;Database=t;");
                 conn.Open();
             }
             catch (Exception e) { conn = null; }

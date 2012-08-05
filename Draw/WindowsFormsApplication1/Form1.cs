@@ -11,6 +11,8 @@ using System.IO;
 using System.Drawing.Drawing2D;
 using Npgsql;
 using System.Windows.Forms.DataVisualization.Charting;
+using M;
+
 
 namespace WindowsFormsApplication1
 {
@@ -208,31 +210,55 @@ namespace WindowsFormsApplication1
             // Set point labels
             chart1.Series[x.ToString()].IsValueShownAsLabel = false;
             //chart1.Series["Series2"].IsValueShownAsLabel = true;
-            
+            chart1.ChartAreas["Default"].CursorX.IsUserEnabled = true;
+            chart1.ChartAreas["Default"].CursorX.IsUserSelectionEnabled = true;
+            chart1.ChartAreas["Default"].AxisX.ScaleView.Zoomable = true;
+            chart1.ChartAreas["Default"].AxisX.ScrollBar.IsPositionedInside = true;
+            chart1.ChartAreas["Default"].CursorY.IsUserEnabled = true;
+            chart1.ChartAreas["Default"].CursorY.IsUserSelectionEnabled = true;
+            chart1.ChartAreas["Default"].AxisY.ScaleView.Zoomable = true;
+            chart1.ChartAreas["Default"].AxisY.ScrollBar.IsPositionedInside = true;
+
+
             x++;
             
         }
 
-        private void webBrowser1_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        
+        private void button2_Click(object sender, EventArgs e)
+        {
+           Model.LoadModules("C:/VLDBDemo_win/data/n/org/b.txt");
+           treeView1.Nodes.Add(Model.buildTree(0));
+       /*    Model m=Model.models[0];
+           treeView1.Nodes.Add(m.ToString());
+           
+           TreeNode tn = (TreeNode)treeView1.Nodes[0];
+           for(int i=0;i<m.nc;i++){
+            Model cm=Model.models[m.children[i]];
+            tn.Nodes.Add(cm.ToString());
+            }*/
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Global.ip = ipTextbox.Text;
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
         {
 
         }
 
-        private void chart1_Click(object sender, EventArgs e)
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-
+            textBox1.Text = "select a, b from uk limit 20;";
         }
 
-        private void addQueryToolStripMenuItem_Click(object sender, EventArgs e)
+        private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-
+            textBox1.Text = "select a, b from mb[1,20] pinterval=1 layers=1;";
         }
 
-        private void chart1_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
-
+      
     }
 }

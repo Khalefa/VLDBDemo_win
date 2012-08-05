@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace ModelVal
+namespace M
 {
-    class SimItem:IComparable
+    class SimItem : IComparable
     {
         public int id1;
         public int id2;
@@ -27,7 +27,7 @@ namespace ModelVal
         public int CompareTo(object obj)
         {
             SimItem o = (SimItem)obj;
-            if (sim/len > o.sim/o.len) return 1;
+            if (sim / len > o.sim / o.len) return 1;
             if (sim / len == o.sim / o.len)
             {
                 if (len > o.len) return 1;

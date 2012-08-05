@@ -5,9 +5,11 @@ using System.Text;
 using System.IO;
 using System.Diagnostics;
 using System.Collections;
-namespace ModelVal
+using System.Windows.Forms;
+namespace M
 {
     public enum ModelType { EXPLICIT = 0, IMPLICIT = 2, TREND = 1 };
+    
 
     class Model
     {
@@ -27,8 +29,8 @@ namespace ModelVal
         int nts;
         double[] ts;
 
-        int nc;
-        int[] children;
+        public int nc;
+        public int[] children;
         int sparent;// (needed for seasonality compoments)
         int parent;// (needed for children)
         #region helper
@@ -51,7 +53,24 @@ namespace ModelVal
                 if (this.nc > 0) for (int i = 0; i < nc; i++) size += models[children[i]].overallsize(layers - 1);
             return size;
         }
-        void PrintModel()
+       override public string ToString()
+        {
+            return "ID:" + id + " Len:" + len + " Error:" + String.Format("{0:0.##}", err) + " Size:" + Size() + " Type:" + type;
+        }
+
+       public static TreeNode buildTree(int i)
+       {
+           Model m = models[i];
+           TreeNode r = new TreeNode();
+           r.Text = m.ToString();
+           r.Tag = m.values + " " + m.ts;
+           for (int j = 0; j < m.nc; j++)
+           {
+               r.Nodes.Add(buildTree(m.children[j]));
+           }
+           return r;
+       }
+       void PrintModel()
         {
             int i;
             Console.Write("---------------------\n");
@@ -533,7 +552,7 @@ namespace ModelVal
             return s;
         }
         static ArrayList deleted = new ArrayList();
-        static Hashtable replaced= new Hashtable();
+        static Hashtable replaced = new Hashtable();
         internal static int compress(ArrayList ar, int l, int len)
         {
             int s = 0;
