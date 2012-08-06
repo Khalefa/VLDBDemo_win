@@ -12,9 +12,9 @@ using System.Drawing.Drawing2D;
 using Npgsql;
 using System.Windows.Forms.DataVisualization.Charting;
 using M;
+using ModelGen;
 
-
-namespace WindowsFormsApplication1
+namespace VLDBDemo
 {
     public partial class Form1 : Form
     {
@@ -180,9 +180,9 @@ namespace WindowsFormsApplication1
                         count++;
                     }
                 }
-                if (lc>3) 
-                    if(!(p.X==0  && p.Y==0))
-                    points.Add(p);
+                if (lc > 3)
+                    if (!(p.X == 0 && p.Y == 0))
+                        points.Add(p);
 
                 row_str = row_str + "</tr>";
                 i--;
@@ -195,8 +195,8 @@ namespace WindowsFormsApplication1
             webBrowser1.Url = new Uri("C:/VLDBDemo_win/data/output.html");
             System.Windows.Forms.DataVisualization.Charting.Series series = new System.Windows.Forms.DataVisualization.Charting.Series();
             series.Name = x.ToString();
-            
-            chart1.Series.Add(series); 
+
+            chart1.Series.Add(series);
             foreach (Point p in points)
             {
                 chart1.Series[x.ToString()].Points.AddXY(p.X, p.Y);
@@ -221,27 +221,32 @@ namespace WindowsFormsApplication1
 
 
             x++;
-            
+
         }
 
-        
+
         private void button2_Click(object sender, EventArgs e)
         {
-           Model.LoadModules("C:/VLDBDemo_win/data/n/org/b.txt");
-           treeView1.Nodes.Add(Model.buildTree(0));
-       /*    Model m=Model.models[0];
-           treeView1.Nodes.Add(m.ToString());
+          M.Model.LoadModules(Global.ukdir+"b.txt");
+            treeView1.Nodes.Add(M.Model.buildTree(0));
+            /*    Model m=Model.models[0];
+                treeView1.Nodes.Add(m.ToString());
            
-           TreeNode tn = (TreeNode)treeView1.Nodes[0];
-           for(int i=0;i<m.nc;i++){
-            Model cm=Model.models[m.children[i]];
-            tn.Nodes.Add(cm.ToString());
-            }*/
+                TreeNode tn = (TreeNode)treeView1.Nodes[0];
+                for(int i=0;i<m.nc;i++){
+                 Model cm=Model.models[m.children[i]];
+                 tn.Nodes.Add(cm.ToString());
+                 }*/
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            Global.ip = ipTextbox.Text;
+            if (ipTextbox.Text.Length > 0)
+                Global.ip = ipTextbox.Text;
+            if (fileText.Text.Length > 0)
+                Global.ukfile = fileText.Text;
+            if (dirtextBox.Text.Length > 0)
+                Global.ukdir = dirtextBox.Text;
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -259,6 +264,42 @@ namespace WindowsFormsApplication1
             textBox1.Text = "select a, b from mb[1,20] pinterval=1 layers=1;";
         }
 
-      
+        double[] GetErrorLevels(string str)
+        {
+            string[] errs = str.Split(',');
+            double[] errors = new double[errs.Length];
+            for (int i = 0; i < errs.Length; i++)
+            {
+                errors[i] = double.Parse(errs[i]);
+            }
+            return errors;
+        }
+        int[] GetFreq(string str)
+        {
+            string[] freqs = str.Split(',');
+            int[] freq = new int[freqs.Length];
+            for (int i = 0; i < freq.Length; i++)
+            {
+                freq[i] = int.Parse(freqs[i]);
+            }
+            return freq;
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            string errors_str = errorTextBox.Text;
+
+            double[] errors = GetErrorLevels(errors_str);
+            int[] freqs = GetFreq(freqtextBox.Text);
+            int n = int.Parse(nTextBox.Text);
+            if(dirtextBox.Text.Length>0)
+            ModelGen.Program.dir = dirtextBox.Text;
+            if (fileText.Text.Length > 0)
+            ModelGen.Program.file = fileText.Text;
+            ModelGen.Program.build(freqs, errors, n);
+        }
+
+
+
     }
 }

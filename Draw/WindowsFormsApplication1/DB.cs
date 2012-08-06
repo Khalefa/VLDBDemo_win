@@ -6,7 +6,7 @@ using System.Text;
 using Npgsql;
 using System.IO;
 using System.Drawing;
-namespace WindowsFormsApplication1
+namespace VLDBDemo
 {
     public class ItemState
     {
