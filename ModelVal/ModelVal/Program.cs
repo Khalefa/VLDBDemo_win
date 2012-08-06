@@ -16,8 +16,12 @@ namespace ModelVal
             
             ArrayList s= Model.FindSimilairty();
             Model.GetValue(0, 2);
+            Model.Compress(s, 0.91);
+            /*s= Model.FindSimilairty();
+            Model.GetValue(0, 2);
             Model.GradualCompression(s, 0.9);
-           /* for (int i = 0; i < 100; i++)
+           
+            /* for (int i = 0; i < 100; i++)
             {
                 Console.WriteLine(i+ "\t"+Model.GetValue(0, i));
             }

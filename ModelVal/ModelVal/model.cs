@@ -44,6 +44,37 @@ namespace ModelVal
             if (this.nc > 0) for (int i = 0; i < nc; i++) size += models[children[i]].overallsize();
             return size;
         }
+        static public int newSize()
+        {
+            int size=0;
+            for (int i = 0; i < models.Length; i++)
+            {
+                Model m = models[i];
+                if (deleted.Contains(m.id)) continue;
+                size += m.Size() + m.nc;
+            }
+            return size;
+        }
+        static void getDependents(int x)
+        {
+            Model mm = models[x];
+            //ArrayList ar = new ArrayList();
+            
+            if (mm.seasonal != -1)
+            {
+              deleted.Add(mm.seasonal);
+              getDependents(mm.seasonal);
+            }
+          /*if (mm.nc > 0)
+            {
+                for (int i = 0; i < mm.nc; i++)
+                {
+                    deleted.Add(mm.children[i]);                    
+                    getDependents(mm.children[i]);
+                }
+            }*/            
+        }
+        
         public int overallsize(int layers)
         {
             int size = this.Size();
@@ -474,6 +505,7 @@ namespace ModelVal
         }
         public static ArrayList FindSimilairty()
         {
+            StreamWriter sw = new StreamWriter("C:/VLDBDemo_win/data/n/s1.txt");
             ArrayList ar = new ArrayList();
             for (int i = 0; i < models.Length; i++)
             {
@@ -483,8 +515,10 @@ namespace ModelVal
                     Model mj = models[j];
                     if (mi.len == -1) continue;
                     if (mj.len == -1) continue;
+                    if (deleted.Contains(mi.id)) continue;
+                    if (deleted.Contains(mj.id)) continue;
                     if (Model.comaprable(models[i], models[j]) == true)
-                        if (mi.len > 192)
+                        if (mi.len >= 192)
                         {
                             SimItem sm = new SimItem();
                             sm.id1 = i;
@@ -492,11 +526,19 @@ namespace ModelVal
                             sm.sim = sim(models[i], models[j]);
                             sm.len = mi.len;
                             ar.Add(sm);
-                            Console.WriteLine("{0}\t{1}\t{2}\t{3}", i, j, sm.sim, sm.len);
+                            sw.WriteLine("{0}\t{1}\t{2}\t{3}", i, j, sm.sim, sm.len);
                         }
                 }
             }
+            sw.Close();
+            sw = new StreamWriter("C:/VLDBDemo_win/data/n/ss.txt");
+            
             ar.Sort();
+            foreach (SimItem sm in ar)
+            {
+                sw.WriteLine("{0}\t{1}\t{2}\t{3}", sm.id1, sm.id2, sm.sim, sm.len);
+            }
+            sw.Close();
             return ar;
         }
         public static void compressSeasonal()
@@ -521,14 +563,20 @@ namespace ModelVal
 
         static int ReplaceModel(int org, int replacment)
         {
-            int s = models[org].overallsize();
+            int s = models[org].Size();
 
             int org_parent = models[org].parent;
             Model parent = models[org_parent];
             //change the org_parent to 
             for (int i = 0; i < parent.nc; i++)
             {
-                if (parent.children[i] == org) { parent.children[i] = replacment; break; }
+                if (parent.children[i] == org) { parent.children[i] = replacment;
+                if (parent.nc == 1)
+                {
+                    Model m = models[replacment];
+                    m.nc = -1;
+                }
+                    break; }
             }
             return s;
         }
@@ -540,32 +588,57 @@ namespace ModelVal
             for (int i = l; i < len + l; i++)
             {
                 SimItem sm = (SimItem)ar[i];
-                if (replaced.Contains(sm.id1) == false)
+                if (deleted.Contains(sm.id2) == false)
                 {
                     s += ReplaceModel(sm.id2, sm.id1);
-                    replaced.Add(sm.id1, sm.id2);
+                    replaced.Add(sm.id2, sm.id1);
                     deleted.Add(sm.id2);
+                    getDependents(sm.id2);
                 }
-                else
+                /*else
                 {
-                    int x = 0;
-                }
+                    s += ReplaceModel(sm.id2, sm.id1);
+                    int x=0;
+                }*/
             }
             return s;
         }
         public static void GradualCompression(ArrayList s, double ratio)
         {
-            int newsize = Model.models[0].overallsize();
+            StreamWriter sw = new StreamWriter("C:/VLDBDemo_win/data/n/c.txt");
+            
             for (int i = 0; i < s.Count; i++)
             {
                 SimItem sm = (SimItem)s[i];
                 if (sm.sim / sm.len > ratio) break;
                 int size = Model.compress(s, i, 1);
-                newsize -= size;
-                int nsize = models[0].overallsize();
-                Console.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}\t{5}", i, size, newsize, nsize, sm.id1, sm.id2);
+                
+                sw.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}", i, size, newSize() ,sm.id1, sm.id2);
             }
+            sw.Close();
         }
+
+        public static void Compress(ArrayList s, double ratio)
+        {
+            StreamWriter sw = new StreamWriter("C:/VLDBDemo_win/data/n/c.txt");
+
+            for (int i = 0; i < s.Count; i++)
+            {
+                SimItem sm = (SimItem)s[i];
+                if (sm.sim / sm.len < ratio)
+                {
+                    int size = Model.compress(s, i, 1);
+                    sw.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}", i, size, newSize(), sm.id1, sm.id2);
+                }
+                else
+                {
+                    int kk = 9;
+                }
+                
+            }
+            sw.Close();
+        }
+
 
     }
 }
