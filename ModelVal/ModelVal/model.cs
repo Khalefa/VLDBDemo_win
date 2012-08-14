@@ -196,9 +196,10 @@ namespace ModelVal
         }
         #endregion
         #region read model
-        public static void LoadModules(string filename)
+        public static void LoadModels(string filename)
         {
             //   /home/khalefa/model/uk2.b
+            
             TextReader f = new StreamReader(filename);
             int n, i;
             n = ReadInt(f);

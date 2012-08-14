@@ -33,8 +33,8 @@ namespace VLDBDemo
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend5 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -42,7 +42,6 @@ namespace VLDBDemo
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.webBrowser1 = new System.Windows.Forms.WebBrowser();
             this.textBox1 = new System.Windows.Forms.TextBox();
-            this.listBox1 = new System.Windows.Forms.ListBox();
             this.label2 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
@@ -59,14 +58,19 @@ namespace VLDBDemo
             this.label1 = new System.Windows.Forms.Label();
             this.button3 = new System.Windows.Forms.Button();
             this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.freqtextBox = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
             this.button4 = new System.Windows.Forms.Button();
             this.nTextBox = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.errorTextBox = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
-            this.freqtextBox = new System.Windows.Forms.TextBox();
-            this.label7 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.linkLabel3 = new System.Windows.Forms.LinkLabel();
+            this.linkLabel4 = new System.Windows.Forms.LinkLabel();
+            this.linkLabel5 = new System.Windows.Forms.LinkLabel();
+            this.linkLabel6 = new System.Windows.Forms.LinkLabel();
+            this.linkLabel7 = new System.Windows.Forms.LinkLabel();
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.tabPage1.SuspendLayout();
@@ -90,10 +94,10 @@ namespace VLDBDemo
             // 
             // chart1
             // 
-            chartArea5.Name = "Default";
-            this.chart1.ChartAreas.Add(chartArea5);
-            legend5.Name = "Legend1";
-            this.chart1.Legends.Add(legend5);
+            chartArea4.Name = "Default";
+            this.chart1.ChartAreas.Add(chartArea4);
+            legend4.Name = "Legend1";
+            this.chart1.Legends.Add(legend4);
             this.chart1.Location = new System.Drawing.Point(6, 6);
             this.chart1.Name = "chart1";
             this.chart1.Size = new System.Drawing.Size(715, 359);
@@ -102,11 +106,15 @@ namespace VLDBDemo
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.linkLabel7);
+            this.tabPage1.Controls.Add(this.linkLabel6);
+            this.tabPage1.Controls.Add(this.linkLabel5);
+            this.tabPage1.Controls.Add(this.linkLabel4);
+            this.tabPage1.Controls.Add(this.linkLabel3);
             this.tabPage1.Controls.Add(this.linkLabel2);
             this.tabPage1.Controls.Add(this.linkLabel1);
             this.tabPage1.Controls.Add(this.webBrowser1);
             this.tabPage1.Controls.Add(this.textBox1);
-            this.tabPage1.Controls.Add(this.listBox1);
             this.tabPage1.Controls.Add(this.label2);
             this.tabPage1.Controls.Add(this.button1);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
@@ -141,7 +149,7 @@ namespace VLDBDemo
             // 
             // webBrowser1
             // 
-            this.webBrowser1.Location = new System.Drawing.Point(20, 84);
+            this.webBrowser1.Location = new System.Drawing.Point(30, 90);
             this.webBrowser1.MinimumSize = new System.Drawing.Size(20, 20);
             this.webBrowser1.Name = "webBrowser1";
             this.webBrowser1.Size = new System.Drawing.Size(691, 262);
@@ -155,14 +163,6 @@ namespace VLDBDemo
             this.textBox1.Size = new System.Drawing.Size(526, 49);
             this.textBox1.TabIndex = 3;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
-            // 
-            // listBox1
-            // 
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(232, 146);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(120, 95);
-            this.listBox1.TabIndex = 5;
             // 
             // label2
             // 
@@ -324,6 +324,22 @@ namespace VLDBDemo
             this.tabPage5.Text = "Build";
             this.tabPage5.UseVisualStyleBackColor = true;
             // 
+            // freqtextBox
+            // 
+            this.freqtextBox.Location = new System.Drawing.Point(97, 83);
+            this.freqtextBox.Name = "freqtextBox";
+            this.freqtextBox.Size = new System.Drawing.Size(255, 20);
+            this.freqtextBox.TabIndex = 6;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(18, 86);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(28, 13);
+            this.label7.TabIndex = 5;
+            this.label7.Text = "Freq";
+            // 
             // button4
             // 
             this.button4.Location = new System.Drawing.Point(165, 205);
@@ -368,28 +384,65 @@ namespace VLDBDemo
             this.label5.TabIndex = 0;
             this.label5.Text = "Errors";
             // 
-            // freqtextBox
-            // 
-            this.freqtextBox.Location = new System.Drawing.Point(97, 83);
-            this.freqtextBox.Name = "freqtextBox";
-            this.freqtextBox.Size = new System.Drawing.Size(255, 20);
-            this.freqtextBox.TabIndex = 6;
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(18, 86);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(28, 13);
-            this.label7.TabIndex = 5;
-            this.label7.Text = "Freq";
-            // 
             // panel2
             // 
             this.panel2.Location = new System.Drawing.Point(6, 15);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(392, 243);
             this.panel2.TabIndex = 7;
+            // 
+            // linkLabel3
+            // 
+            this.linkLabel3.AutoSize = true;
+            this.linkLabel3.Location = new System.Drawing.Point(157, 61);
+            this.linkLabel3.Name = "linkLabel3";
+            this.linkLabel3.Size = new System.Drawing.Size(21, 13);
+            this.linkLabel3.TabIndex = 9;
+            this.linkLabel3.TabStop = true;
+            this.linkLabel3.Text = "Q3";
+            this.linkLabel3.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel3_LinkClicked);
+            // 
+            // linkLabel4
+            // 
+            this.linkLabel4.AutoSize = true;
+            this.linkLabel4.Location = new System.Drawing.Point(195, 61);
+            this.linkLabel4.Name = "linkLabel4";
+            this.linkLabel4.Size = new System.Drawing.Size(21, 13);
+            this.linkLabel4.TabIndex = 10;
+            this.linkLabel4.TabStop = true;
+            this.linkLabel4.Text = "Q4";
+            this.linkLabel4.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel4_LinkClicked);
+            // 
+            // linkLabel5
+            // 
+            this.linkLabel5.AutoSize = true;
+            this.linkLabel5.Location = new System.Drawing.Point(250, 61);
+            this.linkLabel5.Name = "linkLabel5";
+            this.linkLabel5.Size = new System.Drawing.Size(21, 13);
+            this.linkLabel5.TabIndex = 11;
+            this.linkLabel5.TabStop = true;
+            this.linkLabel5.Text = "Q2";
+            // 
+            // linkLabel6
+            // 
+            this.linkLabel6.AutoSize = true;
+            this.linkLabel6.Location = new System.Drawing.Point(222, 61);
+            this.linkLabel6.Name = "linkLabel6";
+            this.linkLabel6.Size = new System.Drawing.Size(21, 13);
+            this.linkLabel6.TabIndex = 12;
+            this.linkLabel6.TabStop = true;
+            this.linkLabel6.Text = "Q5";
+            this.linkLabel6.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel6_LinkClicked);
+            // 
+            // linkLabel7
+            // 
+            this.linkLabel7.AutoSize = true;
+            this.linkLabel7.Location = new System.Drawing.Point(277, 61);
+            this.linkLabel7.Name = "linkLabel7";
+            this.linkLabel7.Size = new System.Drawing.Size(21, 13);
+            this.linkLabel7.TabIndex = 13;
+            this.linkLabel7.TabStop = true;
+            this.linkLabel7.Text = "Q2";
             // 
             // Form1
             // 
@@ -422,7 +475,6 @@ namespace VLDBDemo
         private TabPage tabPage1;
         private WebBrowser webBrowser1;
         private TextBox textBox1;
-        private ListBox listBox1;
         private Label label2;
         private Button button1;
         private TabControl tabControl1;
@@ -450,6 +502,11 @@ namespace VLDBDemo
         private TextBox freqtextBox;
         private Label label7;
         private Panel panel2;
+        private LinkLabel linkLabel7;
+        private LinkLabel linkLabel6;
+        private LinkLabel linkLabel5;
+        private LinkLabel linkLabel4;
+        private LinkLabel linkLabel3;
         
 
     }

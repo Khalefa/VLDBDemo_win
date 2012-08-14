@@ -7,9 +7,9 @@ namespace ModelGen
 {
     public class Range
     {
-        public int s, e;
+        public double s, e;
         public Range() { }
-        public Range(int s, int e)
+        public Range(double s, double e)
         { this.s = s; this.e = e; }
 
        public override string  ToString(){

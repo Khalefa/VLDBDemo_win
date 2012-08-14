@@ -299,6 +299,21 @@ namespace VLDBDemo
             ModelGen.Program.build(freqs, errors, n);
         }
 
+        private void linkLabel3_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            textBox1.Text = "select a, b from mb pinterval=25000000 layers=0 func='max';";
+        }
+
+        private void linkLabel4_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            textBox1.Text = "select max(b) from uk3";
+        }
+
+        private void linkLabel6_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+
+        }
+
 
 
     }

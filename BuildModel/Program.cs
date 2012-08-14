@@ -171,11 +171,156 @@ namespace ModelGen
             t.Set();
             Serlize(st, t,uk);
         }
+        static void buildRandom(int st, int n)
+        {
+            int[] freq = {10000,1000, 100 };
+            double[] errors = { 100, 500, 1000, 1500, 5000 };
+            double[] uk = utils.File.ReadData(dir + file);
+            TimeSeries ts = new TimeSeries(uk, freq);
+            ModelTree t = new ModelTree(ts, errors);
+            t.BuildTree();
+            t.Set();
+            Serlize(st, t, uk);
+        }
+        #region Perfect tree generation
+        // tree
+       // 50
+       // 50
+        // 1000
+        #region build Model
+       static void BuildNiceTree()
+        {
+            ModelTree t =  buildLevel0();
+            double k;
+            double []data=new double[t.len];
+            t.Eval(10000);
+            t.EvalProb(10000,12);
+            t.EvalProb(10000,1);
+            for (int i = 0; i < t.len; i++) data[i] = t.EvalProb(i, 1);
+         
+            Serlize(0,t,data);
+        }
+       
+        static ModelTree buildLevel0()
+        {
+            Global.id = 0;
+            Model m = new Model();
+            m.id = Global.id++;
+            m.len = 1000*10*100;
+            m.freq = 1000*10; 
+            m.error = 100;
+            m.type = ModelType.Explicit;
+            m.values = new double[100];
+            Random r = new Random();
+            for(int i=0;i<10;i++)
+            m.values[i] = r.Next(100);
+            ModelTree t = m.construct();
+            t.seasonal = SetSeasonal();
+            t.children = buildLevel1();
+
+            return t;            
+        }
+        static ModelTree []buildLevel1()
+        {            
+            ModelTree[] ms = new ModelTree[10];
+            for (int j = 0; j < 10; j++)
+            {
+                Model m = new Model();
+                m.id = Global.id++;
+                m.len = 1000 * 10;
+                m.freq = 1000; //leaf node
+                m.error = 10;
+                m.type = ModelType.Explicit;
+                m.values = new double[10];
+                Random r = new Random();
+                for (int i = 0; i < 10; i++)
+                    m.values[i] = r.Next(100);
+                
+                //children
+                ms[j] = m.construct();
+            }
+            Model seasonal = SetSeasonal();
+            for (int j = 0; j < 10; j++)
+            {
+                ModelTree m = ms[j];
+                m.seasonal = seasonal;
+                m.children = buildLevel2();
+            }         
+
+            return ms;
+        }
+        static ModelTree[] buildLevel2()
+        {
+            ModelTree[] ms = new ModelTree[10];
+            for (int j = 0; j < 10; j++)
+            {
+                Model m = new Model();
+                m.id = Global.id++;
+                m.len = 1000 ;
+                m.freq = 100; //leaf node
+                m.error = 10;
+                m.type = ModelType.Explicit;
+                m.values = new double[10];
+                Random r = new Random();
+                for (int i = 0; i < 10; i++)
+                    m.values[i] = r.Next(100);
+
+                //children
+                m.seasonal = null;
+                ms[j] = m.construct();
+            }           
+
+            return ms;
+        }
+
+        static Model SetSeasonal()
+        {
+            Model s = new Model();
+            s.id = Global.id++;
+            s.freq = 100;
+            s.values = new double[100];
+            for (int i = 0; i < 50; i++) { s.values[i] = 2 * i; s.values[99 - i] =  i; }
+            s.len = -1;
+            s.seasonal = SetbaseSeasonal();
+            
+            return s;
+        }
+        static Model SetbaseSeasonal()
+        {
+            double[] x=new double[100];
+            Random r= new Random();
+            for(int i=0;i<100;i++) x[i]=r.Next(100);
+            int []f={100,20};
+            TimeSeries ts=new TimeSeries(x,f);
+            Model s = new Model();
+            s.ts = ts;
+            s.len = -1;
+            s.id= Global.id++;
+            return s;
+        }
+        #endregion
+        #endregion
+        /* static void Main(string[] args)
+         {
+             //GenData.Generate();
+             build(0, 2500000);
+             //build(2500000, 2500000);
+         }
+     */
         static void Main(string[] args)
         {
-            //GenData.Generate();
-            build(0, 2500000);
-            //build(2500000, 2500000);*/
+           /* double[] uk = utils.File.ReadData("c:/data/uk", 0, 100);
+            int[] freq = { 192, 24 * 4 };
+            TimeSeries ts = new TimeSeries(uk, freq);
+            Model m = new Model(ts);
+            */
+            //GenData.GenRandom();
+           /* dir="c:/VLDBDemo_win/data/r/";
+            file = "random.txt";*/
+            //BuildNiceTree();
+          // buildRandom(0, 1000*1000);
+            build(0, 1000000);
         }
+       
     }
 }

@@ -8,7 +8,7 @@ namespace ModelGen
 {
     class GenData
     {
-      public  static  void Generate() {
+      public  static  void GenUK() {
             //first read ukc
             int[] freq = { 17520};
             double[] uk = utils.File.ReadData("c:/data/ukc.txt");
@@ -51,5 +51,56 @@ namespace ModelGen
              sw.Close();
       
         }
+      public static void GenRandom()
+      {
+          //first read ukc
+          int[] freq = { 100 };
+          double[] s = new double[100];
+          Random r = new Random();
+          double x=0;
+          for (int i = 0; i < 50; i++)
+          {
+              x = x + r.Next(10);
+              s[i] = x;
+              s[99 - i] = x;
+          }
+
+          double[] t = new double[10000];
+          Random rr = new Random();
+          Random rx = new Random();
+          x=0;
+          for (int i = 0; i < 10000; i++)
+          {
+
+              t[i] = rr.Next(1000);
+          }
+
+          StreamWriter sw = new StreamWriter("C:/VLDBDemo_win/data/random.txt");
+          for (int i = 0; i < 10000; i++)
+          {
+              for (int j = 0; j < 100; j++)
+              {
+                  double tt = t[i] + s[j];
+                  sw.WriteLine((int)tt);
+              }
+          }
+          sw.Close();
+
+      }
+      void GenQuery()
+      {
+          /*double []d=utils.File.ReadData("C:/VLDBDemo_win/data/r/random.txt", 0, 100);
+          StreamWriter sr = new StreamWriter("C:/VLDBDemo_win/data/r/random.sql");
+          for (int i = 0; d.Length; i++)
+          {
+              for (int j = 0; j < 100; j++)
+              {
+                  double tt = t[i] + s[j];
+                  sw.WriteLine((int)tt);
+              }
+          }
+          sw.Close();*/
+
+      }
     }
 }

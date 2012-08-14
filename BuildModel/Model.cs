@@ -29,6 +29,20 @@ namespace ModelGen
         public int len;
         public double error;
         public int start;
+       public ModelTree construct()
+        {
+            ModelTree t = new ModelTree();
+            t.range = new Range(0, len);
+            t.len = len;
+            t.values = values;
+            t.seasonal = seasonal;
+            t.freq = freq;
+            t.type = type;
+            t.error = error;
+            t.children = null;
+            t.id = id;
+            return t;
+        }
         #region code
         private void decompose(int n, int freq, double[] season_)
         {
@@ -112,6 +126,24 @@ namespace ModelGen
                 utils.Memory.Free(t);
             }
         }
+
+        /*public oldModel(TimeSeries ts, bool sort = true)
+        {
+            this.ts = ts;
+            seasonal = null;
+            values = null;
+            errors = null;
+
+            ModelType best = ModelType.PLA;
+            this.type = best;
+            this.Solve();
+            if (sort)
+                this.CalcError();
+            else
+                this.CalcErrorn();
+            this.len = ts.Length;
+        }*/
+        
         public Model(TimeSeries ts, bool sort = true)
         {
             this.ts = ts;
@@ -239,6 +271,24 @@ namespace ModelGen
             s = seasonal.Eval(x % freq);
             return s + t;
         }
+
+        /*public double Eval(int x)
+        {
+            if (type == ModelType.PLA) return values[0] * (x - start) + values[1];
+            if (seasonal == null && values == null) return ts.data[x];
+
+            if (seasonal == null) return values[0] * x + values[1];
+            double t, s;
+            t = s = 0;
+            if (type == ModelType.Explicit)
+                t = values[x / freq];
+            else if (type == ModelType.Implicit)
+                t = values[0] * x / freq + values[1];
+            else t = values[0] * x + values[1];
+
+            s = seasonal.Eval(x % freq);
+            return s + t;
+        }*/
         private void CalcErrorn()
         {
             errors = new double[ts.Length];
@@ -276,7 +326,7 @@ namespace ModelGen
         }
         public double Error(double x)
         {
-            if (errors == null) ; CalcError();
+            CalcError();
 
             return errors[(int)(x * (ts.Length - 1))];
         }
@@ -368,7 +418,11 @@ namespace ModelGen
             for (int i = 0; i < l; i++) v += "" + values[i] + " ";
             for (int i = 0; i < l_ts; i++) ts_ += "" + ts.data[i] + " ";
 
-            if (seasonal != null) { Global.ht.Add(seasonal.id, seasonal.Serialize()); }
+            if (seasonal != null) {
+                if(Global.ht.ContainsKey(seasonal.id) == false)
+
+                Global.ht.Add(seasonal.id, seasonal.Serialize()); }
+        
             return m + " " + s + " " + v + " " + ts_ + " " + c;
         }
 
@@ -440,12 +494,23 @@ namespace ModelGen
             }
             return size;
         }
+       public Range errorRange()
+        {
+            errors = new double[ts.Length];
+            for (int i = 0; i < ts.Length; i++)
+            {
+                errors[i] = (ts.data[i] - Eval(i));// ts.data[i] * 100;
+            }
+            Array.Sort(errors);
+           
+            return new Range(errors[0], errors[ts.Length - 1]);
+        }
         private void CalcError()
         {
             errors = new double[ts.Length];
             for (int i = 0; i < ts.Length; i++)
             {
-                errors[i] = Math.Abs(ts.data[i] - Eval(i)) / ts.data[i] * 100;
+                errors[i] = Math.Abs(ts.data[i] - Eval(i));// ts.data[i] * 100;
             }
             Array.Sort(errors);
         }
@@ -632,6 +697,9 @@ namespace ModelGen
                         double cost = s.Cost();
                         if (cost < best_cost)
                             best_f = f;
+
+                        Range rr = null;
+                        rr=s.errorRange();
                     }
                     else break;
 
@@ -694,7 +762,7 @@ namespace ModelGen
             {
                 k = children.Length;
             }
-            string s = h + "Model Error:" + Error(0.9)  + range.ToString() + " " + Size() + " " + type + " " + k + "";
+            string s = h + "Model Error:" + error  + range.ToString() + " " + Size() + " " + type + " " + k + "";
             //string s_mo =  "\t" + this.ToString(hh)+ "\n";
             //s =  s + s_mo;
             sw.WriteLine(s);
@@ -759,7 +827,9 @@ namespace ModelGen
             for (int i = 0; i < l_ts; i++) ts_ += "" + ts.data[i] + " ";
             for (int i = 0; i < c_count; i++) c += "" + children[i].id + " ";
 
-            if (seasonal != null) { Global.ht.Add(seasonal.id, seasonal.Serialize()); }
+            if (seasonal != null) {
+                if(Global.ht.ContainsKey(seasonal.id)==false)
+                Global.ht.Add(seasonal.id, seasonal.Serialize()); }
             return m + " " + s + " " + v + " " + ts_ + " " + c;
         }
         public void SerializeAll()
