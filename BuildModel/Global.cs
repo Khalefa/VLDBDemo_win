@@ -11,6 +11,6 @@ namespace ModelGen
         public static int id = 0;
         public static Hashtable ht = new Hashtable();
         public static int use_values = 0;
-        public static int use_parameters = 1;
+        public static double confidence = 0.9;
     }
 }

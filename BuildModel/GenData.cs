@@ -13,10 +13,15 @@ namespace ModelGen
             int[] freq = { 17520};
             double[] uk = utils.File.ReadData("c:/data/ukc.txt");
             TimeSeries ts = new TimeSeries(uk, freq);
-            Model m = new Model(ts,false);
+            Model m = new Model(ts);
+            double []errors = new double[m.trend.Length];
+            for (int i = 0; i < m.trend.Length; i++)
+            {
+                errors[i] = ts.data[i] - m.Eval(i);
+            }
             double[] t = new double[m.trend.Length * 100];
             double[] s = new double[m.trend.Length * 100];
-          double[] e = new double[m.trend.Length * 100];
+           double[] e = new double[m.trend.Length * 100];
           Random r = new Random();
             for (int i = 0; i < m.trend.Length ; i++)
             {
@@ -40,7 +45,7 @@ namespace ModelGen
             }
             for (int i = 0; i < m.trend.Length * 100; i++)
             {
-                e[i] = m.errors[i % m.trend.Length]*(r.NextDouble()/2+0.5)*0.001;
+                e[i] = errors[i % m.trend.Length]*(r.NextDouble()/2+0.5)*0.001;
             }
             StreamWriter sw = new StreamWriter("c:/data/n/uk3.txt");
             for (int i = 0; i < m.trend.Length * 30; i++)

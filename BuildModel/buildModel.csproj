@@ -67,10 +67,10 @@
     <Compile Include="ChebyshevReg.cs" />
     <Compile Include="File.cs" />
     <Compile Include="GenData.cs" />
+    <Compile Include="GenTree.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="Memory.cs" />
     <Compile Include="Model.cs" />
-    <Compile Include="ModelOLD.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Range.cs" />

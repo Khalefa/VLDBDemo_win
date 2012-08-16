@@ -12,10 +12,8 @@ namespace ModelGen
     {
         Explicit, Implicit, Trend, PLA
     };
-    public class ModelBase
-    {
-    }
-    public class Model : ModelBase
+
+    public class Model
     {
         public int id;
         public TimeSeries ts;
@@ -25,11 +23,13 @@ namespace ModelGen
         public double[] values;
         public double[] trend;
         public Model seasonal;
+
         public int freq;
         public int len;
         public double error;
         public int start;
-       public ModelTree construct()
+        public Range error_range;
+        public ModelTree construct()
         {
             ModelTree t = new ModelTree();
             t.range = new Range(0, len);
@@ -41,6 +41,7 @@ namespace ModelGen
             t.error = error;
             t.children = null;
             t.id = id;
+            t.ts = ts;
             return t;
         }
         #region code
@@ -112,39 +113,19 @@ namespace ModelGen
                 {
                     season_[i] = seaonal[i % freq] / count[i % freq];
                 }
-
                 trend = new double[n];
-                errors = new double[n];
                 for (int i = 0; i < n; i++)
                 {
                     trend[i] = t[i];
-                    errors[i] = ts.data[i] - (t[i] + s[i % freq]);
                 }
-
                 utils.Memory.Free(y);
                 utils.Memory.Free(s);
                 utils.Memory.Free(t);
             }
+
         }
-
-        /*public oldModel(TimeSeries ts, bool sort = true)
-        {
-            this.ts = ts;
-            seasonal = null;
-            values = null;
-            errors = null;
-
-            ModelType best = ModelType.PLA;
-            this.type = best;
-            this.Solve();
-            if (sort)
-                this.CalcError();
-            else
-                this.CalcErrorn();
-            this.len = ts.Length;
-        }*/
         
-        public Model(TimeSeries ts, bool sort = true)
+        public Model(TimeSeries ts)
         {
             this.ts = ts;
             seasonal = null;
@@ -158,25 +139,41 @@ namespace ModelGen
                 this.type = t;
                 this.Solve();
                 this.CalcError();
-                double rt = this.Size() * Error(0.9);
+                double rt = this.Size() * Error(Global.confidence);
                 if (min > rt) { min = rt; best = t; }
             }
-            this.type = best;
+            type = best;
             this.Solve();
-            if (sort)
-                this.CalcError();
-            else
-                this.CalcErrorn();
+            this.CalcError();
+            ComputeErrorRange();
+            error = Error(Global.confidence);
             this.len = ts.Length;
         }
+        static public Model ModelQuick(TimeSeries ts)
+        {
+            Model m = new Model();
+            m.ts = ts;
+            m.seasonal = null;
+            m.values = null;
+            m.errors = null;
+                        
+            m.type = ModelType.Explicit;
+            m.Solve();
+            m.CalcError();
+            m.ComputeErrorRange();
+            m.error = m.Error(Global.confidence);
+            m.len = ts.Length;
+            return m;
+        }
+
         public int countError(double error)
         {
             int count = 0;
-            if (errors == null) ; CalcError();
+            CalcError();
 
             for (int i = 0; i < ts.Length; i++)
             {
-                if (errors[i] < error) count++;
+                if (Math.Abs(errors[i]) < error) count++;
             }
 
             return count;
@@ -190,61 +187,59 @@ namespace ModelGen
         }
         public void Solve()
         {
-            int n = ts.Length;
-            if ((ts.freq == null))
+            if (type == ModelType.PLA)
             {
-                // ts data is used
-                int x = 9;
-                x++;
+                values = new double[2];
+                double asum = 0;
+                double bsum = 0;
+
+                for (int i = 0; i < this.ts.Length; i++)
+                {
+                    asum += ((i + 1) - ((ts.Length + 1) / 2)) * ts.data[i];
+                    bsum += ((i + 1) - ((2 * ts.Length + 1) / 3)) * ts.data[i];
+                }
+                values[0] = 12 * asum / ts.Length / (ts.Length + 1) / (ts.Length - 1);
+                values[1] = 6 * bsum / ts.Length / (1 - ts.Length);
+                return;
+            }
+
+            int n = ts.Length;
+            int l = 0;
+            freq = ts.freq[0];
+            while (freq > ts.Length)
+            {
+                if (l == ts.freq.Length)
+                {
+                    return;
+                }
+                freq = ts.freq[l++];
+
+            }
+
+            if (freq == 0)
+            {
+                //use regression
+                values = ChebyshevReg.Solve(ts.data);
+                seasonal = null;
             }
             else
             {
-                int freq = ts.freq[0];
-                int l = 0;
-                while (freq > ts.Length) { freq = ts.freq[l++]; }
-                if (freq == 0)
-                {
-                    //use regression
-                    values = ChebyshevReg.Solve(ts.data);
-                    seasonal = null;
-                }
+                double[] season_ = new double[freq];
+                decompose(n, freq, season_);
+                seasonal = new Model();
+                int[] f;
+                if (ts.freq.Length == 1) f = null;
                 else
                 {
-                    double[] season_ = new double[freq];
-                    if (type == ModelType.PLA)
-                    {
-                        values = new double[2];
-                        double asum = 0;
-                        double bsum = 0;
-
-                        for (int i = 0; i < this.ts.Length; i++)
-                        {
-                            asum += ((i + 1) - ((ts.Length + 1) / 2)) * ts.data[i];
-                            bsum += ((i + 1) - ((2 * ts.Length + 1) / 3)) * ts.data[i];
-                        }
-                        values[0] = 12 * asum / ts.Length / (ts.Length + 1) / (ts.Length - 1);
-                        values[1] = 6 * bsum / ts.Length / (1 - ts.Length);
-
-                    }
-                    else
-                    {
-                        decompose(n, freq, season_);
-                        this.freq = freq;
-                        seasonal = new Model();
-                        int[] f;
-                        if (ts.freq.Length == 1) f = null;
-                        else
-                        {
-                            f = new int[ts.freq.Length - 1];
-                            for (int i = 0; i < ts.freq.Length - 1; i++) f[i] = ts.freq[i + 1];
-                        }
-                        seasonal.ts = new TimeSeries(season_, f);
-
-                        if (f != null)
-                            seasonal.Solve();
-                    }
+                    f = new int[ts.freq.Length - 1];
+                    for (int i = 0; i < ts.freq.Length - 1; i++) f[i] = ts.freq[i + 1];
                 }
+                seasonal.ts = new TimeSeries(season_, f);
+
+                if (f != null)
+                    seasonal.Solve();
             }
+
         }
 
         public virtual void Clean()
@@ -272,30 +267,15 @@ namespace ModelGen
             return s + t;
         }
 
-        /*public double Eval(int x)
+        private void ComputeErrorRange()
         {
-            if (type == ModelType.PLA) return values[0] * (x - start) + values[1];
-            if (seasonal == null && values == null) return ts.data[x];
-
-            if (seasonal == null) return values[0] * x + values[1];
-            double t, s;
-            t = s = 0;
-            if (type == ModelType.Explicit)
-                t = values[x / freq];
-            else if (type == ModelType.Implicit)
-                t = values[0] * x / freq + values[1];
-            else t = values[0] * x + values[1];
-
-            s = seasonal.Eval(x % freq);
-            return s + t;
-        }*/
-        private void CalcErrorn()
-        {
-            errors = new double[ts.Length];
+            double[] e = new double[ts.Length];
             for (int i = 0; i < ts.Length; i++)
             {
-                errors[i] = Math.Abs(ts.data[i] - Eval(i));// /ts.data[i] * 100;
+                e[i] = ts.data[i] - Eval(i);// /ts.data[i] * 100;
             }
+            Array.Sort(e);
+            error_range = new Range(e[0], e[ts.Length - 1]);
         }
 
         private void CalcError()
@@ -309,7 +289,7 @@ namespace ModelGen
         }
         public double AvgError()
         {
-            if (errors == null) ; CalcError();
+            CalcError();
             double error = 0;
             for (int i = 0; i < ts.Length; i++)
             {
@@ -320,8 +300,7 @@ namespace ModelGen
         }
         public double MaxError()
         {
-            if (errors == null) ; CalcError();
-
+            CalcError();
             return errors[ts.Length - 1];
         }
         public double Error(double x)
@@ -332,9 +311,10 @@ namespace ModelGen
         }
         public virtual int Size()
         {
-            if (seasonal == null && values == null) return ts.data.Length;
-            if (seasonal == null) return 2;
-            return values.Length + seasonal.Size();
+
+            if (seasonal == null && values == null) return ts.data.Length+2;
+            if (seasonal == null) return 2+2;
+            return values.Length + seasonal.Size()+2;
         }
         public void Print()
         {
@@ -355,7 +335,7 @@ namespace ModelGen
         }
         public void PrintShort()
         {
-            Console.WriteLine(ts.Length + "\t" + String.Format("{0:00.00}", Error(0.5)) + "% " + "\t" + String.Format("{0:00.00}", Error(0.9)) + "% " + "\t" + String.Format("{0:00.00}", MaxError()) + "%\t" + Size());
+            Console.WriteLine(ts.Length + "\t" + String.Format("{0:00.00}", Error(0.5)) + "% " + "\t" + String.Format("{0:00.00}", Error(Global.confidence)) + "% " + "\t" + String.Format("{0:00.00}", MaxError()) + "%\t" + Size());
         }
         public void Save()
         {
@@ -363,8 +343,7 @@ namespace ModelGen
         }
         #endregion
         public virtual void Set()
-        {
-            error = Error(0.9);
+        {            
             id = Global.id;
             Global.id++;
             if (seasonal != null) seasonal.Set();
@@ -392,42 +371,36 @@ namespace ModelGen
         {
             if (type == ModelType.Explicit) return 0;
             if (type == ModelType.Trend) return 1;
-            return 2;
+            if (type == ModelType.Trend) return 2;
+            return 3;
         }
         public string Serialize()
         {
             string m = "";
-            string s = "" + "";
-            string c = "";
+            string s = "";
             string v = "";
 
             int l = 0;
             int l_ts = 0;
-            int c_count = 0;
 
             if (values != null) l = values.Length;
             if (ts != null) l_ts = ts.Length;
             if (seasonal == null) s = "-1";
-            else s = "" + seasonal.id;
-            c = "" + "0"; c_count = 0;
-
+            else { s = "" + seasonal.id;
+                if(Global.ht.ContainsKey(seasonal.id)==false)
+            Global.ht.Add(seasonal.id, seasonal.Serialize());
+            }
 
             string ts_ = "" + l_ts + " ";
             v = l + " ";
-            m = "" + id + " " + Type() + " " + -1 + " " + "" + error + " " + "" + freq;
+            m = "" + id + " " + Type() + " " + len + " " + "" + error + " " + "" + freq;
             for (int i = 0; i < l; i++) v += "" + values[i] + " ";
             for (int i = 0; i < l_ts; i++) ts_ += "" + ts.data[i] + " ";
 
-            if (seasonal != null) {
-                if(Global.ht.ContainsKey(seasonal.id) == false)
-
-                Global.ht.Add(seasonal.id, seasonal.Serialize()); }
-        
-            return m + " " + s + " " + v + " " + ts_ + " " + c;
+            return m + " " + s + " " + v + " " + ts_;
         }
-
+        
     }
-
     class ModelSet
     {
         TimeSeries ts;
@@ -494,7 +467,7 @@ namespace ModelGen
             }
             return size;
         }
-       public Range errorRange()
+        public Range errorRange()
         {
             errors = new double[ts.Length];
             for (int i = 0; i < ts.Length; i++)
@@ -502,7 +475,7 @@ namespace ModelGen
                 errors[i] = (ts.data[i] - Eval(i));// ts.data[i] * 100;
             }
             Array.Sort(errors);
-           
+
             return new Range(errors[0], errors[ts.Length - 1]);
         }
         private void CalcError()
@@ -516,7 +489,7 @@ namespace ModelGen
         }
         public double AvgError()
         {
-            if (errors == null) ; CalcError();
+            CalcError();
             double error = 0;
             for (int i = 0; i < ts.Length; i++)
             {
@@ -527,107 +500,124 @@ namespace ModelGen
         }
         public double MaxError()
         {
-            if (errors == null) ; CalcError();
+            CalcError();
 
             return errors[ts.Length - 1];
         }
         public double Error(double x)
         {
-            if (errors == null) ; CalcError();
+            CalcError();
 
             return errors[(int)(x * (ts.Length - 1))];
         }
         public void PrintShort()
         {
-            Console.WriteLine(ts.Length + "\t" + String.Format("{0:00.00}", Error(0.5)) + "% " + "\t" + String.Format("{0:00.00}", Error(0.9)) + "% " + "\t" + String.Format("{0:00.00}", MaxError()) + "%\t" + Size());
+            Console.WriteLine(ts.Length + "\t" + String.Format("{0:00.00}", Error(0.5)) + "% " + "\t" + String.Format("{0:00.00}", Error(Global.confidence)) + "% " + "\t" + String.Format("{0:00.00}", MaxError()) + "%\t" + Size());
         }
         public double Cost()
         {
-            return Size() * Error(0.9);
+            return Size() * Error(Global.confidence);
         }
+
+    }
+    public class BuildModel
+    {
+        static public TimeSeries ts;
+
+        static public ModelTree BTree(double[] error_level)
+        {
+            int period = ts.freq[ts.freq.Length - 1];
+            int n = ts.Length / period;
+            ArrayList ranges = new ArrayList();
+            for (int i = 0; i < n; i++)
+            {
+                ranges.Add(new Range(i * period, (i + 1) * period - 1));
+            }
+            ArrayList all_ranges = new ArrayList();
+
+            ArrayList r;
+            foreach (double i in error_level)
+            {
+                r = Level(ranges, i);
+                all_ranges.Add(r);
+                ranges = r;
+            }
+            ArrayList top = (ArrayList)all_ranges[all_ranges.Count - 1];
+            if (top.Count == 0)
+            {
+                top.Add(new Range(0, ts.Length - 1));
+                all_ranges[all_ranges.Count - 1] = top;
+            }
+            top = (ArrayList)all_ranges[all_ranges.Count - 1];
+            if (top.Count != 1)
+            {                
+                all_ranges.Add(new Range(0, ts.Length - 1));
+            }
+            RTree rt = new RTree(all_ranges,ts);
+            return rt.root.t;
+
+        }
+
+        static ArrayList combine(ArrayList ranges)
+        {
+            ArrayList r = new ArrayList();
+            int i;
+            int last_added = 0;
+            for (i = 0; i < ranges.Count - 1; i = i + 2)
+            {
+                Range r1 = (Range)ranges[i];
+                Range r2 = (Range)ranges[i + 1];
+                last_added = i + 1;
+                Range t = Range.Combine(r1, r2);
+                r.Add(t);
+            }
+            if (last_added < ranges.Count - 1)
+                r.Add(ranges[last_added + 1]);
+            return r;
+        }
+        static ArrayList Level(ArrayList ranges, double errror_level)
+        {
+            ArrayList tss = null;
+            ArrayList new_ranges = combine(ranges);
+
+            for (; ; )
+            {
+                int count = 0;
+                tss = ts.Divide(new_ranges);
+                foreach (TimeSeries t in tss)
+                {
+                    Model m = new Model(t);
+                    if (m.error < errror_level)
+                    {
+                        count++;
+
+                        //remove ranges
+                        ArrayList todel = new ArrayList();
+
+                        foreach (Range r in new_ranges)
+                        {
+                            if (t.r.overlap(r)) todel.Add(r);
+                        }
+                        foreach (Range r in todel)
+                            new_ranges.Remove(r);
+                        new_ranges.Add(t.r);
+                    }
+                }
+                if (count == 0) break;
+                //if (count == 1) break;
+                new_ranges.Sort();
+                new_ranges = combine(new_ranges);
+            }
+            return new_ranges;
+        }
+    
     }
     public class ModelTree : Model
     {
         public ModelTree[] children;
+        public ArrayList childs= new ArrayList();
         public Range range;
-        #region old
-        /*  ModelTree[] findChildren(int len, ref double max_error)
-        {
-            max_error = double.MinValue;
-            int kk = (int)Math.Floor((double)ts.Length / len);
 
-            ModelTree[] c = new ModelTree[kk];
-            int x = 0;
-
-            for (int i = 0; i < kk - 1; i++)
-            {
-                if (i == kk - 2) len = ts.Length - x;
-
-                double[] u = new double[len];
-                for (int j = 0; j < len; j++) u[j] = ts.data[x++];
-                TimeSeries t = new TimeSeries(u, ts.freq);
-                ModelTree m = new ModelTree(t,  len * i);
-                if (m.error > max_error) max_error = m.error;
-                if (max_error > 0.9 * error) return null;
-                c[i] = m;
-            }
-
-            if (max_error > 0.9 * error) return null;
-            return c;
-        }
-        void setChildren( int len)
-        {
-            int kk = (int)Math.Floor((double)ts.Length / len);
-
-            children = new ModelTree[kk];
-            int x = 0;
-            int l = ts.Length / kk;
-            for (int i = 0; i < kk; i++)
-            {
-                if (i == kk - 1) l = ts.Length - x;
-                double[] u = new double[l];
-                for (int j = 0; j < l; j++) u[j] = ts.data[x++];
-                TimeSeries t = new TimeSeries(u, ts.freq);
-                ModelTree m = new ModelTree(t, l * i);
-                children[i] = m;
-            }
-        }
-        */
-
-        /*  //divide the time series into k
-            /*range = new Range(start + 0, start + ts.Length - 1);
-            error = Error(0.9);
-            if ((ts.Length < 100)) children = null;
-            else
-            {
-                children = null;
-                double max_error = 0;
-                double min_max_error = double.MaxValue;
-                int best_k = ts.freq[0];
-
-                int i = 0;
-                for (i = 0; i < ts.freq.Length; i++)
-                {
-                    int f = ts.freq[i];
-                    if (f == 0) continue;
-                    //       for (; ; )
-                    {
-                        ModelTree[] c = findChildren( f * 4, ref max_error);
-                        // if (max_error < min_max_error) {
-                        best_k = f * 8 / 2;
-                        /*if (c != null)
-                        {
-                            children = new ModelTree[c.Length];
-                            for (int m = 0; m < c.Length; m++)
-                                children[m] = c[m];
-                            break;
-                        }*/
-        /*      }
-          }
-          if (children == null) setChildren( best_k);
-
-      }*/
-        #endregion
         public virtual void Set()
         {
             base.Set();
@@ -670,7 +660,7 @@ namespace ModelGen
                 m.start = s;
             }
         }
-
+        
         public void BuildTree()
         {
             if (errors == null) return;
@@ -692,14 +682,15 @@ namespace ModelGen
                     ModelSet s = new ModelSet(ts);
                     s.getModels(f, current_error, ref len);
                     //
-                    if ((len >= 0.99 * length) && (s.models.Length <= max_branching))
+                    if ((len >= Global.confidence * length) && (s.models.Length <= max_branching))
                     {
                         double cost = s.Cost();
                         if (cost < best_cost)
+                        {
                             best_f = f;
+                            best_cost = cost;
+                        }
 
-                        Range rr = null;
-                        rr=s.errorRange();
                     }
                     else break;
 
@@ -762,7 +753,7 @@ namespace ModelGen
             {
                 k = children.Length;
             }
-            string s = h + "Model Error:" + error  + range.ToString() + " " + Size() + " " + type + " " + k + "";
+            string s = h + "Model Error:" + error + range.ToString() + " " + Size() + " " + type + " " + k + " ";
             //string s_mo =  "\t" + this.ToString(hh)+ "\n";
             //s =  s + s_mo;
             sw.WriteLine(s);
@@ -777,64 +768,26 @@ namespace ModelGen
             }
 
         }
-        public string ToString(int indent = 0)
-        {
-            string h = indent + " ";
-            string hh = indent + " ";
-            for (int i = 0; i < indent; i++) { h += "\t"; hh += "\t"; }
-            int k = 0;
-            if (children != null)
-            {
-                k = children.Length;
-            }
-            string s = h + "Model Error:" + Error(0.9) + "%" + range.ToString() + " " + Size() + " " + type + " " + k + "\n";
-            //string s_mo =  "\t" + this.ToString(hh)+ "\n";
-            //s =  s + s_mo;
-            if (children == null)
-            {
-                return s;
-            }
 
-            for (int i = 0; i < k; i++)
-            {
-                s += children[i].ToString(indent + 1);
-            }
-            return s;
-        }
-
-        public string Serialize()
+        public new void Serialize()
         {
-            string m = "";
-            string s = "";
             string c = "";
-            string v = "";
-
-            int l = 0;
-            int l_ts = 0;
             int c_count = 0;
-
-            if (values != null) l = values.Length;
-            if (ts != null) l_ts = ts.Length;
-            if (seasonal == null) s = "-1";
-            else s = "" + seasonal.id;
             if (children == null) { c = "" + "0"; c_count = 0; }
             else { c = "" + children.Length + " "; c_count = children.Length; }
 
-            string ts_ = "" + l_ts + " ";
-            v = l + " ";
-            m = "" + id + " " + Type() + " " + len + " " + "" + error + " " + "" + freq;
-            for (int i = 0; i < l; i++) v += "" + values[i] + " ";
-            for (int i = 0; i < l_ts; i++) ts_ += "" + ts.data[i] + " ";
             for (int i = 0; i < c_count; i++) c += "" + children[i].id + " ";
 
-            if (seasonal != null) {
-                if(Global.ht.ContainsKey(seasonal.id)==false)
-                Global.ht.Add(seasonal.id, seasonal.Serialize()); }
-            return m + " " + s + " " + v + " " + ts_ + " " + c;
+            if (seasonal != null)
+            {                
+                    seasonal.Serialize();
+            }
+            string to_str = base.Serialize() + " " + c;
+            Global.ht.Add(this.id, to_str);
         }
         public void SerializeAll()
         {
-            Global.ht.Add(this.id, this.Serialize());
+            this.Serialize();
             if (children != null)
                 foreach (ModelTree m in children) m.SerializeAll();
         }

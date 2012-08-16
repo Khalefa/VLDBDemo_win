@@ -29,7 +29,7 @@ namespace ModelGen
             /* System generated locals */
             //int a_dim1, a_offset,
             int i__1, i__2;
-            double r__1;
+         
 
             /* Local variables */
             double d__;
