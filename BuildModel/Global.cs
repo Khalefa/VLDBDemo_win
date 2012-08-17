@@ -12,5 +12,7 @@ namespace ModelGen
         public static Hashtable ht = new Hashtable();
         public static int use_values = 0;
         public static double confidence = 0.9;
+        public static bool quick=false;
+        
     }
 }

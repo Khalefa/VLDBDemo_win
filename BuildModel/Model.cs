@@ -160,7 +160,7 @@ namespace ModelGen
             m.type = ModelType.Explicit;
             m.Solve();
             m.CalcError();
-            m.ComputeErrorRange();
+           // m.ComputeErrorRange();
             m.error = m.Error(Global.confidence);
             m.len = ts.Length;
             return m;
@@ -377,6 +377,40 @@ namespace ModelGen
         public string Serialize()
         {
             string m = "";
+            string s = "" + "";
+            string c = "";
+            string v = "";
+
+            int l = 0;
+            int l_ts = 0;
+            int c_count = 0;
+
+            if (values != null) l = values.Length;
+            if (ts != null) l_ts = ts.Length;
+            if (seasonal == null) s = "-1";
+            else s = "" + seasonal.id;
+            c = "" + "0"; c_count = 0;
+
+
+            string ts_ = "" + l_ts + " ";
+            v = l + " ";
+            m = "" + id + " " + Type() + " " + -1 + " " + "" + error + " " + "" + freq;
+            for (int i = 0; i < l; i++) v += "" + values[i] + " ";
+            for (int i = 0; i < l_ts; i++) ts_ += "" + ts.data[i] + " ";
+
+            if (seasonal != null)
+            {
+                if (Global.ht.ContainsKey(seasonal.id) == false)
+
+                    Global.ht.Add(seasonal.id, seasonal.Serialize());
+            }
+
+            return m + " " + s + " " + v + " " + ts_ + " " + c;
+        }
+
+/*        public string Serialize()
+        {
+            string m = "";
             string s = "";
             string v = "";
 
@@ -399,7 +433,7 @@ namespace ModelGen
 
             return m + " " + s + " " + v + " " + ts_;
         }
-        
+  */      
     }
     class ModelSet
     {
@@ -586,7 +620,12 @@ namespace ModelGen
                 tss = ts.Divide(new_ranges);
                 foreach (TimeSeries t in tss)
                 {
-                    Model m = new Model(t);
+                    Model m;
+                    if(Global.quick)
+                        m=Model.ModelQuick(t);
+                    else
+                     m = new Model(t);// 
+                      //  new Model(t); // ModelQuick
                     if (m.error < errror_level)
                     {
                         count++;
@@ -769,7 +808,7 @@ namespace ModelGen
 
         }
 
-        public new void Serialize()
+      /*  public new void Serialize()
         {
             string c = "";
             int c_count = 0;
@@ -784,10 +823,45 @@ namespace ModelGen
             }
             string to_str = base.Serialize() + " " + c;
             Global.ht.Add(this.id, to_str);
+        }*/
+        public string Serialize()
+        {
+            string m = "";
+            string s = "";
+            string c = "";
+            string v = "";
+
+            int l = 0;
+            int l_ts = 0;
+            int c_count = 0;
+
+            if (values != null) l = values.Length;
+            if (ts != null) l_ts = ts.Length;
+            if (seasonal == null) s = "-1";
+            else s = "" + seasonal.id;
+            if (children == null) { c = "" + "0"; c_count = 0; }
+            else { c = "" + children.Length + " "; c_count = children.Length; }
+
+            string ts_ = "" + l_ts + " ";
+            v = l + " ";
+            m = "" + id + " " + Type() + " " + len + " " + "" + error + " " + "" + freq;
+            for (int i = 0; i < l; i++) v += "" + values[i] + " ";
+            for (int i = 0; i < l_ts; i++) ts_ += "" + ts.data[i] + " ";
+            for (int i = 0; i < c_count; i++) c += "" + children[i].id + " ";
+
+            if (seasonal != null)
+            {
+                string ss=seasonal.Serialize();
+                if (Global.ht.ContainsKey(seasonal.id) == false)
+                    Global.ht.Add(seasonal.id, ss);
+            }
+            return m + " " + s + " " + v + " " + ts_ + " " + c;
         }
         public void SerializeAll()
         {
-            this.Serialize();
+            string ss=this.Serialize();
+            if(Global.ht.ContainsKey(id)==false)
+            Global.ht.Add(this.id, ss);
             if (children != null)
                 foreach (ModelTree m in children) m.SerializeAll();
         }

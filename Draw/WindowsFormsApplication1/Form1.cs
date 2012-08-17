@@ -266,7 +266,10 @@ namespace VLDBDemo
 
         double[] GetErrorLevels(string str)
         {
+            str=str.Trim();
+            if (str == "") return null;
             string[] errs = str.Split(',');
+            if (errs.Length == 0) return null; 
             double[] errors = new double[errs.Length];
             for (int i = 0; i < errs.Length; i++)
             {
@@ -277,6 +280,8 @@ namespace VLDBDemo
         int[] GetFreq(string str)
         {
             string[] freqs = str.Split(',');
+            if (str == "") return null;
+            if (freqs.Length == 0) return null;
             int[] freq = new int[freqs.Length];
             for (int i = 0; i < freq.Length; i++)
             {
@@ -291,12 +296,16 @@ namespace VLDBDemo
 
             double[] errors = GetErrorLevels(errors_str);
             int[] freqs = GetFreq(freqtextBox.Text);
-            int n = int.Parse(nTextBox.Text);
+            int n=1000*1000;
+            if(nTextBox.Text!="")
+            n = int.Parse(nTextBox.Text);
             if(dirtextBox.Text.Length>0)
-            ModelGen.Program.dir = dirtextBox.Text;
+            ModelGen.GenTree.dir  = dirtextBox.Text;
             if (fileText.Text.Length > 0)
-            ModelGen.Program.file = fileText.Text;
-            ModelGen.Program.build(freqs, errors, n);
+            ModelGen.GenTree.file = fileText.Text;
+            if (errors!=null ) ModelGen.GenTree.errors = errors;
+            if (freqs !=null) ModelGen.GenTree.freq = freqs;
+            ModelGen.GenTree.build (0, n);
         }
 
         private void linkLabel3_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -313,8 +322,48 @@ namespace VLDBDemo
         {
 
         }
+        bool loaded_chart2 = false;
+        private void chart2_Click(object sender, EventArgs e)
+        {
+            if(loaded_chart2==false)
+            Loaddata();
+            loaded_chart2 = true;
+        }
 
+        void Loaddata(){
+            System.Windows.Forms.DataVisualization.Charting.Series series = new System.Windows.Forms.DataVisualization.Charting.Series();
+            series.Name = "uk";
+            
+            chart2.Series.Add(series);
+            double[] vals = utils.File.ReadData(Global.ukdir + "uk.txt" , 0, 1000000);
+            int i=1;
+            double min=0;
+            double max=0;
+            foreach (double p in vals)
+            {
+                if (p > max) max = p;
+                if (p < min) min = p;
+                chart2.Series["uk"].Points.AddXY(i++, p);
+                //chart1.Series["Series2"].Points.AddY(random.Next(5, 75));
+            }
+            Global.uk_range = new Range(min, max);
+            // Set series chart type
+            chart2.Series["uk"].ChartType = SeriesChartType.Line;
+            //chart1.Series["Series2"].ChartType = SeriesChartType.Spline;
 
+            // Set point labels
+            chart2.Series["uk"].IsValueShownAsLabel = false;
+            //chart1.Series["Series2"].IsValueShownAsLabel = true;
+            chart2.ChartAreas["Default"].CursorX.IsUserEnabled = true;
+            chart2.ChartAreas["Default"].CursorX.IsUserSelectionEnabled = true;
+            chart2.ChartAreas["Default"].AxisX.ScaleView.Zoomable = true;
+            chart2.ChartAreas["Default"].AxisX.ScrollBar.IsPositionedInside = true;
+            chart2.ChartAreas["Default"].CursorY.IsUserEnabled = true;
+            chart2.ChartAreas["Default"].CursorY.IsUserSelectionEnabled = true;
+            chart2.ChartAreas["Default"].AxisY.ScaleView.Zoomable = false;
+            chart2.ChartAreas["Default"].AxisY.ScrollBar.IsPositionedInside = true;
+
+        }
 
     }
 }

@@ -6,6 +6,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Collections;
 using System.Windows.Forms;
+using VLDBDemo;
 namespace M
 {
     public enum ModelType { EXPLICIT = 0, IMPLICIT = 2, TREND = 1 };
@@ -55,7 +56,10 @@ namespace M
         }
        override public string ToString()
         {
+           if(Global.uk_range==null)
             return "ID:" + id + " Len:" + len + " Error:" + String.Format("{0:0.##}", err) + " Size:" + Size() + " Type:" + type;
+           else
+               return "ID:" + id + " Len:" + len + " Error:" + String.Format("{0:0.##}", err/Global.uk_range.len*100) + "% Size:" + Size() + " Type:" + type;
         }
 
        public static TreeNode buildTree(int i)

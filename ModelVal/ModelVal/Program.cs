@@ -12,10 +12,10 @@ namespace ModelVal
         {
             Model.error_level = 2;
             Model.LoadModels("C:/VLDBDemo_win/data/n/org/b.txt");
-            
+            Model.GetValue(0, 2);
             
             ArrayList s= Model.FindSimilairty();
-            Model.GetValue(0, 2);
+            
             Model.Compress(s, 0.91);
             /*s= Model.FindSimilairty();
             Model.GetValue(0, 2);

@@ -7,7 +7,7 @@ using System.IO;
 
 namespace utils
 {
-    class File
+    public class File
     {
         public static double[] ReadData(string file, int size=int.MaxValue)
         {

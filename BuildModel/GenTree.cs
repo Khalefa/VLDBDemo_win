@@ -8,12 +8,14 @@ using System.Xml.Serialization;
 namespace ModelGen
 
 {
-    class GenTree
+   public  class GenTree
     {
-        static int[] freq = { 17520, 24 * 4};
-        static double[] errors = { 500, 1000, 5000 };
-        public static string dir = "C:/VLDBDemo_win/data/d/";
-        public static string file = "uk3.txt";
+        public static int[] freq = { 17520, 24 * 4};
+        public static double[] errors = {500, 1000, 5000 };
+        /*public static string dir = "C:/VLDBDemo_win/data/d/";
+        public static string file = "uk3.txt";*/
+        public static string dir = "C:/VLDBDemo_win/data/n/org/";
+        public static string file = "uk.txt";
         static void Serlialize(int st, ModelTree t, double[] uk)
         {
             bool append = st > 0;
@@ -147,7 +149,9 @@ namespace ModelGen
             TimeSeries ts = new TimeSeries(uk, freq);
             BuildModel.ts = ts;
             ModelTree t= BuildModel.BTree(errors);
-            
+          /*  ModelTree  t= new ModelTree(ts, errors,0);
+            t.BuildTree();
+            t.Clean();*/
             Serlialize(st, t, uk);
         }
 
