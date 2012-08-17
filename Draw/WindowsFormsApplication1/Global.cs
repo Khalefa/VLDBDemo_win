@@ -11,5 +11,6 @@ namespace VLDBDemo
         public static string ukfile = "ukc.txt";
         public static string ukdir="C:/VLDBDemo_win/data/n/org/";
         public static Range uk_range = null;
+        
     }
 }

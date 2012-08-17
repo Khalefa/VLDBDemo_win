@@ -51,8 +51,6 @@ namespace VLDBDemo
             if (conn != null)
             {
                 c.Connection = conn;
-                c.CommandText = "select count(*) from uk3 ;";
-                c.CommandText = "select a, b from mb  error=2  pinterval=1 order by a";
                 c.CommandText = query;
                 //c.CommandText = "select a, sum(b) from mb group by a error=2  pinterval=1 order by a";
                 //c.CommandText = "select a/96, sum(b) from uk3 group by a/96  order by a/96";
@@ -83,7 +81,8 @@ namespace VLDBDemo
                 return ar;
                 //conn.Close();
             }
-            else return ReadDataFile("C:/VLDBDemo_win/data/ukt.txt");
+            //else return ReadDataFile("C:/VLDBDemo_win/data/ukt.txt");
+            return null;
         }
 
         static public ArrayList Scale(ArrayList l, int x, int y)

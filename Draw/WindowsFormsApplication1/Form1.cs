@@ -256,12 +256,12 @@ namespace VLDBDemo
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            textBox1.Text = "select a, b from uk limit 20;";
+            textBox1.Text = "select id, val from uk limit 100;";
         }
 
         private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            textBox1.Text = "select a, b from mb[1,20] pinterval=1 layers=1;";
+            textBox1.Text = "select id, val from m_uk[0,99] pinterval=1 layers=1;";
         }
 
         double[] GetErrorLevels(string str)
@@ -310,17 +310,19 @@ namespace VLDBDemo
 
         private void linkLabel3_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            textBox1.Text = "select a, b from mb pinterval=25000000 layers=0 func='max';";
+            textBox1.Text = "select id, val from m_uk pinterval=25000000 layers=0 func='max';";
         }
 
         private void linkLabel4_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            textBox1.Text = "select max(b) from uk3";
+            textBox1.Text = "select max(val) from uk;";
         }
 
         private void linkLabel6_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
+            textBox1.Text = "select * from m_uk  [162040,162250] pinterval=1 layers=0 ;";
 
+                       
         }
         bool loaded_chart2 = false;
         private void chart2_Click(object sender, EventArgs e)
@@ -363,6 +365,46 @@ namespace VLDBDemo
             chart2.ChartAreas["Default"].AxisY.ScaleView.Zoomable = false;
             chart2.ChartAreas["Default"].AxisY.ScrollBar.IsPositionedInside = true;
 
+        }
+
+        private void chart1_Click(object sender, EventArgs e)
+        {
+                      ;
+        }
+
+        private void linkLabel8_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+                VerticalLineAnnotation l = new VerticalLineAnnotation();
+	            l.AxisX = chart1.ChartAreas["Default"].AxisX;
+                ArrayList data = GetData.RunQuery("show grp_len;");
+                ItemState row = (ItemState) data[1];
+                string[] rd;
+                rd = row.data;
+                    int interval = int.Parse( row.data[0]);
+
+                    l.AnchorX = 162144 / interval;// int.Parse(data[1]);
+	            l.IsInfinitive = true;
+                l.ClipToChartArea = chart1.ChartAreas["Default"].Name;
+	            l.LineColor = Color.Blue;
+                chart1.Annotations.Add(l);
+        }
+
+        private void linkLabel9_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            chart1.Series.Clear();
+            x = 0;
+        }
+
+        private void linkLabel5_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            textBox1.Text = "select * from  uk forecast val on id number 10;";
+
+        }
+
+        private void linkLabel7_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            
+            textBox1.Text = "select * from  m_uk [16214,16216] pinterval=10 layers=0 func='avg'";
         }
 
     }
