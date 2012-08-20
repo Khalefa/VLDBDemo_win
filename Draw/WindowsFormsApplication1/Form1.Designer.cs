@@ -33,11 +33,13 @@ namespace VLDBDemo
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea11 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend11 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea12 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend12 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea55 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend55 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea56 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend56 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.linkLabel9 = new System.Windows.Forms.LinkLabel();
+            this.linkLabel8 = new System.Windows.Forms.LinkLabel();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.linkLabel7 = new System.Windows.Forms.LinkLabel();
@@ -64,7 +66,6 @@ namespace VLDBDemo
             this.label5 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.button2 = new System.Windows.Forms.Button();
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.ipTextbox = new System.Windows.Forms.TextBox();
@@ -75,8 +76,9 @@ namespace VLDBDemo
             this.dirtextBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.button3 = new System.Windows.Forms.Button();
-            this.linkLabel8 = new System.Windows.Forms.LinkLabel();
-            this.linkLabel9 = new System.Windows.Forms.LinkLabel();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             this.tabPage1.SuspendLayout();
@@ -102,12 +104,34 @@ namespace VLDBDemo
             this.tabPage2.Text = "Model Match";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // linkLabel9
+            // 
+            this.linkLabel9.AutoSize = true;
+            this.linkLabel9.Location = new System.Drawing.Point(688, 329);
+            this.linkLabel9.Name = "linkLabel9";
+            this.linkLabel9.Size = new System.Drawing.Size(33, 13);
+            this.linkLabel9.TabIndex = 2;
+            this.linkLabel9.TabStop = true;
+            this.linkLabel9.Text = "erase";
+            this.linkLabel9.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel9_LinkClicked);
+            // 
+            // linkLabel8
+            // 
+            this.linkLabel8.AutoSize = true;
+            this.linkLabel8.Location = new System.Drawing.Point(692, 342);
+            this.linkLabel8.Name = "linkLabel8";
+            this.linkLabel8.Size = new System.Drawing.Size(32, 13);
+            this.linkLabel8.TabIndex = 1;
+            this.linkLabel8.TabStop = true;
+            this.linkLabel8.Text = "show";
+            this.linkLabel8.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel8_LinkClicked);
+            // 
             // chart1
             // 
-            chartArea11.Name = "Default";
-            this.chart1.ChartAreas.Add(chartArea11);
-            legend11.Name = "Legend1";
-            this.chart1.Legends.Add(legend11);
+            chartArea55.Name = "Default";
+            this.chart1.ChartAreas.Add(chartArea55);
+            legend55.Name = "Legend1";
+            this.chart1.Legends.Add(legend55);
             this.chart1.Location = new System.Drawing.Point(6, 6);
             this.chart1.Name = "chart1";
             this.chart1.Size = new System.Drawing.Size(715, 359);
@@ -257,10 +281,10 @@ namespace VLDBDemo
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage4);
-            this.tabControl1.Location = new System.Drawing.Point(12, 27);
+            this.tabControl1.Location = new System.Drawing.Point(12, 11);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(735, 384);
+            this.tabControl1.Size = new System.Drawing.Size(735, 403);
             this.tabControl1.TabIndex = 0;
             // 
             // tabPage6
@@ -275,10 +299,10 @@ namespace VLDBDemo
             // 
             // chart2
             // 
-            chartArea12.Name = "Default";
-            this.chart2.ChartAreas.Add(chartArea12);
-            legend12.Name = "Legend1";
-            this.chart2.Legends.Add(legend12);
+            chartArea56.Name = "Default";
+            this.chart2.ChartAreas.Add(chartArea56);
+            legend56.Name = "Legend1";
+            this.chart2.Legends.Add(legend56);
             this.chart2.Location = new System.Drawing.Point(6, 0);
             this.chart2.Name = "chart2";
             this.chart2.Size = new System.Drawing.Size(715, 359);
@@ -373,31 +397,25 @@ namespace VLDBDemo
             // 
             // tabPage3
             // 
-            this.tabPage3.Controls.Add(this.button2);
+            this.tabPage3.Controls.Add(this.label10);
+            this.tabPage3.Controls.Add(this.label9);
+            this.tabPage3.Controls.Add(this.label8);
             this.tabPage3.Controls.Add(this.treeView1);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(727, 358);
+            this.tabPage3.Size = new System.Drawing.Size(727, 377);
             this.tabPage3.TabIndex = 5;
             this.tabPage3.Text = "Model View";
             this.tabPage3.UseVisualStyleBackColor = true;
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(282, 311);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "load";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.tabPage3.Click += new System.EventHandler(this.tabPage3_Click);
             // 
             // treeView1
             // 
-            this.treeView1.Location = new System.Drawing.Point(45, 18);
+            this.treeView1.Location = new System.Drawing.Point(5, 18);
             this.treeView1.Name = "treeView1";
-            this.treeView1.Size = new System.Drawing.Size(587, 287);
+            this.treeView1.Size = new System.Drawing.Size(695, 278);
             this.treeView1.TabIndex = 0;
+            this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
             // 
             // tabPage4
             // 
@@ -481,27 +499,32 @@ namespace VLDBDemo
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
-            // linkLabel8
+            // label8
             // 
-            this.linkLabel8.AutoSize = true;
-            this.linkLabel8.Location = new System.Drawing.Point(692, 342);
-            this.linkLabel8.Name = "linkLabel8";
-            this.linkLabel8.Size = new System.Drawing.Size(32, 13);
-            this.linkLabel8.TabIndex = 1;
-            this.linkLabel8.TabStop = true;
-            this.linkLabel8.Text = "show";
-            this.linkLabel8.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel8_LinkClicked);
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(20, 299);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(0, 13);
+            this.label8.TabIndex = 2;
+            this.label8.Click += new System.EventHandler(this.label8_Click);
             // 
-            // linkLabel9
+            // label9
             // 
-            this.linkLabel9.AutoSize = true;
-            this.linkLabel9.Location = new System.Drawing.Point(688, 329);
-            this.linkLabel9.Name = "linkLabel9";
-            this.linkLabel9.Size = new System.Drawing.Size(33, 13);
-            this.linkLabel9.TabIndex = 2;
-            this.linkLabel9.TabStop = true;
-            this.linkLabel9.Text = "erase";
-            this.linkLabel9.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel9_LinkClicked);
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(330, 303);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(0, 13);
+            this.label9.TabIndex = 3;
+            this.label9.Click += new System.EventHandler(this.label9_Click);
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(458, 303);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(0, 13);
+            this.label10.TabIndex = 4;
+            this.label10.Click += new System.EventHandler(this.label10_Click);
             // 
             // Form1
             // 
@@ -511,6 +534,7 @@ namespace VLDBDemo
             this.Controls.Add(this.tabControl1);
             this.Name = "Form1";
             this.Text = "Demo";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
@@ -522,6 +546,7 @@ namespace VLDBDemo
             this.tabPage5.ResumeLayout(false);
             this.tabPage5.PerformLayout();
             this.tabPage3.ResumeLayout(false);
+            this.tabPage3.PerformLayout();
             this.tabPage4.ResumeLayout(false);
             this.tabPage4.PerformLayout();
             this.panel1.ResumeLayout(false);
@@ -543,7 +568,6 @@ namespace VLDBDemo
         private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
         private TabPage tabPage3;
         private TreeView treeView1;
-        private Button button2;
         private TabPage tabPage4;
         private TextBox ipTextbox;
         private Panel panel1;
@@ -573,6 +597,9 @@ namespace VLDBDemo
         private System.Windows.Forms.DataVisualization.Charting.Chart chart2;
         private LinkLabel linkLabel8;
         private LinkLabel linkLabel9;
+        private Label label8;
+        private Label label9;
+        private Label label10;
         
 
     }

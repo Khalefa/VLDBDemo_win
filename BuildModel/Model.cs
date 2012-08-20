@@ -311,7 +311,7 @@ namespace ModelGen
         }
         public virtual int Size()
         {
-
+            if (seasonal == null && values == null && ts == null) return 2;
             if (seasonal == null && values == null) return ts.data.Length+2;
             if (seasonal == null) return 2+2;
             return values.Length + seasonal.Size()+2;
@@ -346,7 +346,7 @@ namespace ModelGen
         {            
             id = Global.id;
             Global.id++;
-            if (seasonal != null) seasonal.Set();
+            if (seasonal != null) seasonal.Set();           
         }
         public string ToString(string h)
         {
@@ -382,6 +382,8 @@ namespace ModelGen
             string v = "";
 
             int l = 0;
+            if (id == 9171)
+                m = m;
             int l_ts = 0;
             int c_count = 0;
 
@@ -565,16 +567,19 @@ namespace ModelGen
             ArrayList ranges = new ArrayList();
             for (int i = 0; i < n; i++)
             {
-                ranges.Add(new Range(i * period, (i + 1) * period - 1));
+                Range r = new Range(i * period, (i + 1) * period - 1);
+                r.computed = 1;
+                r.matched=1; 
+                ranges.Add(r);
             }
             ArrayList all_ranges = new ArrayList();
-
-            ArrayList r;
+            //all_ranges.Add(ranges); 
+            ArrayList nr;
             foreach (double i in error_level)
             {
-                r = Level(ranges, i);
-                all_ranges.Add(r);
-                ranges = r;
+                nr = Level(ranges, i);
+                all_ranges.Add(nr);
+                ranges = nr;
             }
             ArrayList top = (ArrayList)all_ranges[all_ranges.Count - 1];
             if (top.Count == 0)
@@ -585,7 +590,9 @@ namespace ModelGen
             top = (ArrayList)all_ranges[all_ranges.Count - 1];
             if (top.Count != 1)
             {                
-                all_ranges.Add(new Range(0, ts.Length - 1));
+                ArrayList a=new ArrayList();
+                a.Add(new Range(0, ts.Length - 1));
+                all_ranges.Add(a);
             }
             RTree rt = new RTree(all_ranges,ts);
             return rt.root.t;
@@ -603,8 +610,14 @@ namespace ModelGen
                 Range r2 = (Range)ranges[i + 1];
                 last_added = i + 1;
                 Range t = Range.Combine(r1, r2);
-                r.Add(t);
+                //if
+                //    r.Add(t);
+                //else { r.Add(r1); r.Add(r2); }
+                 if (r1.matched == 1 && r2.matched == 1)
+                
+                     if(t!=null)r.Add(t);
             }
+            // I am not sure if this is ever needed but it would not harm
             if (last_added < ranges.Count - 1)
                 r.Add(ranges[last_added + 1]);
             return r;
@@ -612,50 +625,101 @@ namespace ModelGen
         static ArrayList Level(ArrayList ranges, double errror_level)
         {
             ArrayList tss = null;
-            ArrayList new_ranges = combine(ranges);
+            ArrayList R = new ArrayList();
+            foreach (Range r in ranges)
+                R.Add(new Range(r.s, r.e));
+            ArrayList X = ranges;
 
+            // should ont use computed and matched
             for (; ; )
             {
                 int count = 0;
-                tss = ts.Divide(new_ranges);
+                tss = ts.Divide(X);
                 foreach (TimeSeries t in tss)
                 {
+                    if (t.r.computed == 1) {if (t.r.matched== 1) count++; continue; }
+                    t.r.computed = 1;
+                    t.r.matched = 0;
                     Model m;
                     if(Global.quick)
                         m=Model.ModelQuick(t);
                     else
                      m = new Model(t);// 
-                      //  new Model(t); // ModelQuick
                     if (m.error < errror_level)
                     {
+                        t.r.matched = 1;
+                        bool ignore = false; // may be also be called as do not add to the 
                         count++;
-
                         //remove ranges
                         ArrayList todel = new ArrayList();
 
-                        foreach (Range r in new_ranges)
+                        foreach (Range r in R)
                         {
-                            if (t.r.overlap(r)) todel.Add(r);
+                            if ((t.r.overlap(r)) && ((int)t.r.len != (int)r.len)) todel.Add(r);
+                            else if (t.r.overlap(r)) ignore = true;
                         }
                         foreach (Range r in todel)
-                            new_ranges.Remove(r);
-                        new_ranges.Add(t.r);
+                            R.Remove(r);
+                       if(ignore==false) R.Add(t.r);
                     }
                 }
                 if (count == 0) break;
                 //if (count == 1) break;
-                new_ranges.Sort();
-                new_ranges = combine(new_ranges);
+               X.Sort();
+               X = combine(X);
+                // we need to deset matched or not 
             }
-            return new_ranges;
+            return R;
         }
     
     }
-    public class ModelTree : Model
+    public class ModelTree : Model, IComparable
     {
         public ModelTree[] children;
+        public ModelTree parent;
         public ArrayList childs= new ArrayList();
         public Range range;
+        public void convertchildstochildren()
+        {
+            if (childs.Count > 0)
+            {
+                children = new ModelTree[childs.Count];
+                int j = 0;
+                childs.Sort();
+                foreach (ModelTree t in childs)
+                {
+                    children[j] = t;
+                    j++;
+                }
+            }
+        }
+        public void removeChild(int id_)
+        {
+            for (int i = 0; i < childs.Count; i++)
+            {
+                ModelTree child = (ModelTree)childs[i];
+                if (child.id == id_) childs.Remove(child);
+            }
+            convertchildstochildren();
+                
+        }
+        public void Improvetree()
+        {
+            foreach (ModelTree t in childs)
+            {
+
+                if (t.error > error)
+                { // the model is not needed so clean every then
+                    t.Clean();
+                    t.ts = null;
+                    t.values = null;
+                    t.seasonal = null;
+
+                    t.Improvetree();
+                }
+            }  
+          
+        }
 
         public virtual void Set()
         {
@@ -699,7 +763,6 @@ namespace ModelGen
                 m.start = s;
             }
         }
-        
         public void BuildTree()
         {
             if (errors == null) return;
@@ -892,6 +955,13 @@ namespace ModelGen
 
             //	printf("l %d li %d\n",l,li);
             return children[li].EvalProb(x % llen, err);
+        }
+
+        public int CompareTo(object obj)
+        {
+            ModelTree tt=(ModelTree) obj;
+
+            return this.range.CompareTo(tt.range);
         }
 
     }

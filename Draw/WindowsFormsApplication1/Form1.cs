@@ -227,8 +227,6 @@ namespace VLDBDemo
 
         private void button2_Click(object sender, EventArgs e)
         {
-          M.Model.LoadModules(Global.ukdir+"b.txt");
-            treeView1.Nodes.Add(M.Model.buildTree(0));
             /*    Model m=Model.models[0];
                 treeView1.Nodes.Add(m.ToString());
            
@@ -310,7 +308,7 @@ namespace VLDBDemo
 
         private void linkLabel3_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            textBox1.Text = "select id, val from m_uk pinterval=25000000 layers=0 func='max';";
+            textBox1.Text = "select id, val from m_uk pinterval=162144 layers=0 func='max';";
         }
 
         private void linkLabel4_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -405,6 +403,51 @@ namespace VLDBDemo
         {
             
             textBox1.Text = "select * from  m_uk [16214,16216] pinterval=10 layers=0 func='avg'";
+        }
+
+        private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+
+           // label8.Text =  "Ovreall size " +M.Model.models[0].overallsize();
+        }
+
+        private void label8_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tabPage3_Click(object sender, EventArgs e)
+        {
+            string s = M.Model.LoadModules(Global.ukdir + "b.txt");
+            label8.Text = s;
+            int size=M.Model.models[0].len;
+            s = "Total size\n";
+            string s1 = "\n";
+            for (int i = 0; i < M.Model.models[0].stat.maxdepth; i++)
+            {
+                int a = M.Model.models[0].overallsize(i);
+               s=s+ a +"\n";
+               s1 = s1 + String.Format("{0:0.00}", (double)a * 100 / size) + "%\n"; 
+            }
+            label9.Text = s;
+            label10.Text = s1;
+            treeView1.Nodes.Add(M.Model.buildTree(0));
+         
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label9_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label10_Click(object sender, EventArgs e)
+        {
+
         }
 
     }

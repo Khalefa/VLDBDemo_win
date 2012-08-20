@@ -10,7 +10,36 @@ using VLDBDemo;
 namespace M
 {
     public enum ModelType { EXPLICIT = 0, IMPLICIT = 2, TREND = 1 };
-    
+    class Stats
+    {
+        public Stats(int maxdepth) {
+              this.maxdepth= maxdepth;
+             size = new double[maxdepth+1];
+             n = new int[maxdepth+1];
+             max_error=new double[maxdepth+1];
+        
+        }
+            public int maxdepth;
+            public double[] size;
+            public int []n; 
+            public double []max_error;
+            public string toString()
+            {
+                string s = "Levels "+ maxdepth+ "\n";
+                for (int i = 0; i < maxdepth; i++)
+                {
+                    if (Global.uk_range == null)
+
+                        s = s + "L " + i + " # " + n[i] + " S " + String.Format("{0:0.##}", size[i] / n[i]) + " E " + String.Format("{0:0.##}", max_error[i]);
+                    else
+                        s = s + "L " + i + " # " + n[i] + " S " + String.Format("{0:0.##}", size[i] / n[i]) + " E " + String.Format("{0:0.##}", max_error[i] / Global.uk_range.len * 100) ;
+                    s = s + "\n";
+                }
+                
+                return s;
+            }
+        
+    }
 
     class Model
     {
@@ -22,7 +51,7 @@ namespace M
         int id;
         int seasonal;
         int freq;
-        int len;
+        public int len;
         double err;
         int nv;
         double[] values; //length is in len
@@ -35,6 +64,51 @@ namespace M
         int sparent;// (needed for seasonality compoments)
         int parent;// (needed for children)
         #region helper
+
+        public Stats stat;
+        public void computeStats()
+        {
+            stat = new Stats(max_depth());
+            stat.n[0] = 1;
+            stat.size[0] = Size();
+            stat.max_error[0] = err;
+            for (int i = 0; i < nc; i++)
+            {
+                stat.n[1]++;
+                stat.size[1]+=models[children[i]].Size();
+                stat.max_error[1] = Math.Max(stat.max_error[1], models[children[i]].err);
+                models[children[i]].computeStats(stat,  1);
+            }
+            
+
+        }
+        public void computeStats(Stats s, int l)
+        {
+            for (int i = 0; i < nc; i++)
+            {
+                s.n[l+1]++;
+                s.size[l+1] += models[children[i]].Size();
+                s.max_error[l+1] = Math.Max(s.max_error[l+1], models[children[i]].err);
+                models[children[i]].computeStats(s, l + 1);
+            }
+            
+        }
+
+        public int max_depth()
+        {
+            if (nc > 0)
+            {
+                int maxdepth = 0;
+                for (int i = 0; i < nc; i++)
+                {
+                    int d=models[children[i]].max_depth();
+                    if(maxdepth <d)maxdepth=d;
+                }
+                return maxdepth + 1;
+            }
+
+            else return 1;
+        }
         public virtual int Size()
         {
             if (seasonal == -1 && nv == 0) return ts.Length;
@@ -68,6 +142,7 @@ namespace M
            TreeNode r = new TreeNode();
            r.Text = m.ToString();
            r.Tag = m.values + " " + m.ts;
+          
            for (int j = 0; j < m.nc; j++)
            {
                r.Nodes.Add(buildTree(m.children[j]));
@@ -188,7 +263,7 @@ namespace M
         }
         #endregion
         #region read model
-        public static void LoadModules(string filename)
+        public static string LoadModules(string filename)
         {
             //   /home/khalefa/model/uk2.b
             TextReader f = new StreamReader(filename);
@@ -226,6 +301,10 @@ namespace M
                     models[m.children[j]].parent = i;
                 }
             }
+
+            Model root  = models[0];
+            root.computeStats();
+            return root.stat.toString(); 
         }
         static string ReadString(System.IO.TextReader f)
         {

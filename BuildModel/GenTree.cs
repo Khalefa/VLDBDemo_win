@@ -11,7 +11,7 @@ namespace ModelGen
    public  class GenTree
     {
         public static int[] freq = { 17520, 24 * 4};
-        public static double[] errors = {500, 1000, 5000 };
+        public static double[] errors = {700, 1000, 2000 };
         /*public static string dir = "C:/VLDBDemo_win/data/d/";
         public static string file = "uk3.txt";*/
         public static string dir = "C:/VLDBDemo_win/data/n/org/";
@@ -23,7 +23,8 @@ namespace ModelGen
 
             t.ToFile(sw);
             sw.Close();
-            
+            Global.id = 0;
+            t.Set();
             StreamWriter mm = new StreamWriter(dir + "b.txt");
             t.SerializeAll();
             mm.WriteLine(Global.id);
@@ -152,6 +153,12 @@ namespace ModelGen
           /*  ModelTree  t= new ModelTree(ts, errors,0);
             t.BuildTree();
             t.Clean();*/
+            Global.id = 0;
+            t.Set();
+            
+            //t.Improvetree();
+            Global.id = 0;
+            t.Set();
             Serlialize(st, t, uk);
         }
 

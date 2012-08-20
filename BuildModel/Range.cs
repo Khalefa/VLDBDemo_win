@@ -11,6 +11,8 @@ namespace ModelGen
         public ArrayList children= new ArrayList();      
         public double s, e;
         public ModelTree t;
+        public int computed=0;
+        public int matched = 0;
         public Range() { }
         public Range(double s, double e)
         { this.s = s; this.e = e; }
@@ -22,7 +24,7 @@ namespace ModelGen
        public static Range Combine(Range r, Range r2)
        {
            if (r.e  +1 == r2.s) return new Range(r.s, r2.e);
-           else throw new Exception("could not combine this");
+           else 
            return null;
        }
 
@@ -85,7 +87,7 @@ namespace ModelGen
                     ModelTree t = m.construct();
                     t.range = r_i;
                     t.children = null;                    
-                    r_i.t = t;
+                    r_i.t = t;  
                 }
             }
             
@@ -114,8 +116,14 @@ namespace ModelGen
                     foreach (Range r_j in R_j)
                     {
                         if (r_j.overlap(r_i))
-                            if(r_j.len > r_i.len)
-                            r_j.t.childs.Add(r_i.t);
+                            if (r_j.len > r_i.len)
+                            {
+                                if (r_i.t.error > 1)
+                                {
+                                    r_j.t.childs.Add(r_i.t);
+                                    r_i.t.parent = r_j.t;
+                                }
+                            }
                     }
                 }
             }
@@ -125,16 +133,7 @@ namespace ModelGen
                 R_i = (ArrayList)ranges[i];
                 foreach (Range r_i in R_i)
                 {
-                    if (r_i.t.childs.Count > 0)
-                    {
-                        r_i.t.children = new ModelTree[r_i.t.childs.Count];
-                        int j = 0;
-                        foreach (ModelTree t in r_i.t.childs)
-                        {
-                            r_i.t.children[j] = t;
-                            j++;
-                        }
-                    }
+                    r_i.t.convertchildstochildren();
                 }
 
             }
