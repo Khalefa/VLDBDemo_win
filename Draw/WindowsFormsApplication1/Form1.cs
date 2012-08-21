@@ -195,21 +195,34 @@ namespace VLDBDemo
             webBrowser1.Url = new Uri("C:/VLDBDemo_win/data/output.html");
             System.Windows.Forms.DataVisualization.Charting.Series series = new System.Windows.Forms.DataVisualization.Charting.Series();
             series.Name = x.ToString();
+            System.Windows.Forms.DataVisualization.Charting.Series series_for = new System.Windows.Forms.DataVisualization.Charting.Series();
+            series_for.Name = x.ToString()+ "Forecasted";
 
             chart1.Series.Add(series);
+            chart1.Series.Add(series_for);
             foreach (Point p in points)
             {
-                chart1.Series[x.ToString()].Points.AddXY(p.X, p.Y);
+                if(p.X > limit)
+                    chart1.Series[series_for.Name].Points.AddXY(p.X, p.Y);
+                else
+                    chart1.Series[series.Name].Points.AddXY(p.X, p.Y);
                 //chart1.Series["Series2"].Points.AddY(random.Next(5, 75));
             }
 
+
             // Set series chart type
-            chart1.Series[x.ToString()].ChartType = SeriesChartType.Line;
-            //chart1.Series["Series2"].ChartType = SeriesChartType.Spline;
+            chart1.Series[series.Name].ChartType = SeriesChartType.Line;
+            chart1.Series[series_for.Name].ChartType = SeriesChartType.Line;
+            
+            
 
             // Set point labels
-            chart1.Series[x.ToString()].IsValueShownAsLabel = false;
-            //chart1.Series["Series2"].IsValueShownAsLabel = true;
+            chart1.Series[series.Name].IsValueShownAsLabel = false;
+            chart1.Series[series_for.Name].IsValueShownAsLabel = false;
+            chart1.Series[series_for.Name].IsVisibleInLegend = false;
+            chart1.Series[series_for.Name].Color = Color.Blue;
+
+            chart1.Series[series_for.Name].BorderDashStyle =ChartDashStyle.Dash;
             chart1.ChartAreas["Default"].CursorX.IsUserEnabled = true;
             chart1.ChartAreas["Default"].CursorX.IsUserSelectionEnabled = true;
             chart1.ChartAreas["Default"].AxisX.ScaleView.Zoomable = true;
@@ -369,7 +382,7 @@ namespace VLDBDemo
         {
                       ;
         }
-
+        int limit = -1;
         private void linkLabel8_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
                 VerticalLineAnnotation l = new VerticalLineAnnotation();
@@ -378,13 +391,15 @@ namespace VLDBDemo
                 ItemState row = (ItemState) data[1];
                 string[] rd;
                 rd = row.data;
-                    int interval = int.Parse( row.data[0]);
-
+                  int   interval = int.Parse( row.data[0]);
+                  if (interval == 0) interval = 1;
                     l.AnchorX = 162144 / interval;// int.Parse(data[1]);
+                    limit =(int) l.AnchorX;
 	            l.IsInfinitive = true;
                 l.ClipToChartArea = chart1.ChartAreas["Default"].Name;
 	            l.LineColor = Color.Blue;
                 chart1.Annotations.Add(l);
+
         }
 
         private void linkLabel9_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -448,6 +463,22 @@ namespace VLDBDemo
         private void label10_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void ipTextbox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void linkLabel10_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            textBox1.Text="select * from m_uk [162144,162240] pinterval=1 error=1;";
+
+        }
+
+        private void linkLabel11_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            textBox1.Text = "select * from m_uk [161808, 162480] pinterval= 336 error=1 func='max';";
         }
 
     }
